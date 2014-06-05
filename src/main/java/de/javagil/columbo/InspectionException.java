@@ -78,5 +78,35 @@ public class InspectionException extends RuntimeException {
 		}
 	}
 
+	/**
+	 * Creates an {@link InspectionException} for a method which was not found.
+	 * In this case the version of the target class in the classpath is
+	 * incompatible to the version from compile time. 
+	 * 
+	 * @param clazz the class on which a method was called
+	 * @param name the name of the method
+	 * @param paramTypes the parameter types
+	 * @return an {@link InspectionException}
+	 */
+	public static InspectionException createMethodNotFoundException(
+				final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+		assert clazz != null : "class must not be null";
+		assert name != null : "name must not be null";
+		
+		return new InspectionException("no method found for " + clazz.getName() + "#" + name + 
+					asString(paramTypes));
+	}
+
+	private static String asString(final Class<?>[] paramTypes) {
+		if (paramTypes == null || paramTypes.length == 0) {
+			return "()";
+		}
+		
+		String asString = "(";
+		for (Class<?> clazz: paramTypes) {
+			asString += BytecodeUtil.getJavaClassName(clazz) + ", ";
+		}
+		return asString.substring(0, asString.length() - 2) + ")";
+	}
 	
 }

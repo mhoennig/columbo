@@ -77,7 +77,7 @@ class ClassFinder {
 			    throw new RuntimeException(ex);
 			}
 		    } else {
-			urls.add(url);
+		    	urls.add(url);
 		    }
 		}
 		List<ClassLoader> classLoadersList = new LinkedList<ClassLoader>();
@@ -101,10 +101,7 @@ class ClassFinder {
 			String clazzName = clazz.getName();
 			if (clazzName != null) {
 				names.add(clazzName);
-			} else {
-				// FIXME just for debugging
-				clazzName = clazz.getName();
-			}
+			} 
 		}
 
 	    return names;

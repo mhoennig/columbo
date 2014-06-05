@@ -26,29 +26,45 @@
 
 package de.javagil.columbo;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
+import org.junit.Test;
 
 /**
- * A buffered input stream on the bytecode of a class.
+ * Unit test for class {@link  BytecodeUtil}.
  * 
  * @author michael.hoennig@javagil.de
+ *
  */
-class BufferedClassInputStream extends BufferedInputStream {
+public class BytecodeUtilTest {
 
-	BufferedClassInputStream(final String className) throws ClassNotFoundException {
-		super(createClassInputStream(className));
+	@Test
+	public final void getJavaClassNameTest() {
+		assertEquals("boolean", BytecodeUtil.getJavaClassName(boolean.class));
+		assertEquals("int[]", BytecodeUtil.getJavaClassName(int[].class));
+		assertEquals("java.lang.Long", BytecodeUtil.getJavaClassName(Long.class));
+		assertEquals("java.lang.Object[]", BytecodeUtil.getJavaClassName(Object[].class));
 	}
 	
-	private static InputStream createClassInputStream(final String className) throws ClassNotFoundException {
-		String classResName = "/" + className.replaceAll("\\.", "/") + ".class";
-		Class<?> clazz = getClassLoader().loadClass(className);
-		InputStream is = clazz.getResourceAsStream(classResName);  
-	    return is; 
+	@Test
+	public final void getPrimitiveTypeByPrefixTest() {
+		assertSame(boolean.class, BytecodeUtil.getPrimitiveTypeByPrefix('Z'));
+		assertNull(BytecodeUtil.getPrimitiveTypeByPrefix('x'));
 	}
-
-
-	private static ClassLoader getClassLoader() {
-		return Thread.currentThread().getContextClassLoader();
+	
+	@Test
+	public final void taggedTypeNameToClassTest() {
+		assertSame(java.lang.Object.class, BytecodeUtil.taggedTypeNameToClass("Ljava/lang/Object;"));
+		assertSame(java.lang.Object[].class, BytecodeUtil.taggedTypeNameToClass("[Ljava/lang/Object"));
 	}
+	
+	@Test
+	public final void typeNameToClassTest() {
+		assertSame(java.lang.Object.class, BytecodeUtil.classNameToClass("java.lang.Object"));
+		assertSame(java.lang.Object[].class, BytecodeUtil.classNameToClass("java.lang.Object[]"));
+	}
+	
+
 }

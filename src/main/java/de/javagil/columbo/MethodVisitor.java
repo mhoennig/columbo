@@ -26,16 +26,11 @@
 package de.javagil.columbo;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javassist.bytecode.Opcode;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.EmptyVisitor;
 
 
@@ -47,23 +42,6 @@ import org.objectweb.asm.commons.EmptyVisitor;
  * @author michael.hoennig@javagil.de
  */
 class MethodVisitor extends MethodAdapter {
-
-	// maps "boolean", "int", "short" ... to boolean.class, int.class, short.class ...
-	private static final Map<String, Class<?>> PRIMITIVES = new HashMap<String, Class<?>>();
-	
-	// maps B, I, S, ... to boolean.class, int.class, short.class ...
-	private static final Map<Character, Class<?>> PREFIXES = new HashMap<Character, Class<?>>();
-	
-	static {
-		definePrimitive(boolean.class);
-		definePrimitive(char.class);
-		definePrimitive(byte.class);
-		definePrimitive(short.class);
-		definePrimitive(int.class);
-		definePrimitive(long.class);
-		definePrimitive(double.class);
-		definePrimitive(float.class);
-	}
 
 	private final ReferenceVisitor referenceVisitor;
     private final VisitorContext context;
@@ -79,39 +57,47 @@ class MethodVisitor extends MethodAdapter {
         if (opcode == Opcode.INVOKEINTERFACE || opcode == Opcode.INVOKEVIRTUAL || opcode == Opcode.INVOKESTATIC) {
         	Referrer referrer = context.toReferrer();
         	
-        	Class<?> clazz = taggedTypeNameToClass(owner);
-        	referenceVisitor.onClassReference(referrer, clazz);
-        	
-            Class<?>[] parameterTypes = determineParameterTypes(desc);
-            if (parameterTypes != null) { // TODO check if we can use empty array  
-	            for (Class<?> paramType: parameterTypes) {
-	            	referenceVisitor.onClassReference(referrer, paramType);
-	            }
-        	}
-            
-            final Method method = findMethod(clazz, name, desc);
+        	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
+        	referenceVisitor.onClassReference(referrer, rawType(clazz));
+
+            final Method method = findMethod(rawType(clazz), name, desc);
             referenceVisitor.onMethodReference(referrer, method);
-           	referenceVisitor.onClassReference(referrer, method.getReturnType());
+           	referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
+
+            notifyParameterTypes(referrer, method.getParameterTypes());            
         }
     }
 
-    static Method findMethod(final Class<?> clazz, final String name, final String desc) {
-    	try {
-			return clazz.getDeclaredMethod(name, determineParameterTypes(desc));
-		} catch (NoSuchMethodException exc) {
-			if (clazz.getSuperclass() != null && clazz.getSuperclass() != java.lang.Object.class) {
-				return findMethod(clazz.getSuperclass(), name, desc);
-			} 
-			
-			throw new InspectionException(exc);
+	private void notifyParameterTypes(final Referrer referrer, final Class<?>[] parameterTypes) {
+	    for (Class<?> paramType: parameterTypes) {
+	    	referenceVisitor.onClassReference(referrer, rawType(paramType));
+	    }
+	}
+
+    private Class<?> rawType(final Class<?> type) {
+    	if (!type.isArray()) {
+    		return type;
+    	}
+    	return rawType(type.getComponentType());
+	}
+
+	Method findMethod(final Class<?> clazz, final String name, final String desc) {
+
+		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+		Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
+		if (method != null) {
+			return method;
 		}
+		
+		referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
+		return null;
 	}
 
 	@Override
 	public void visitTypeInsn(final int opcode, final String type) {
 		try  {
 			if (opcode == Opcode.NEW || opcode == Opcode.INSTANCEOF) { 
-				Class<?> clazz = typeNameToClass(type);
+				Class<?> clazz = BytecodeUtil.typeNameToClass(type);
 				referenceVisitor.onClassReference(context.toReferrer(), clazz); 
 			}
 		} catch (ClassNotFoundException exc) {
@@ -129,58 +115,5 @@ class MethodVisitor extends MethodAdapter {
     public void visitEnd() {
     	context.leavingMethod();
     }
-    
-	static Class<?>[] determineParameterTypes(final String desc) {
-		Type[] argTypes = Type.getArgumentTypes(desc);
-		
-		List<Class<?>> paramTypeList = new ArrayList<Class<?>>();
-		for (int n = 0; n < argTypes.length; ++n) {
-			if (argTypes[n] != null) {
-				paramTypeList.add(taggedTypeNameToClass(argTypes[n].getClassName()));
-			}
-		}
-		Class<?>[] paramTypes = paramTypeList.toArray(new Class<?>[paramTypeList.size()]);
-		// TODO check if we can use empty array
-		return paramTypes.length == 0 ? null : paramTypes;
-	}
-    
-   static Class<?> taggedTypeNameToClass(final String taggedTypeNameWithSlashes) {
-	   try {
-		   Class<?> primitiveType = PREFIXES.get(taggedTypeNameWithSlashes.charAt(0));
-		   if (primitiveType != null) {
-			   return primitiveType;   
-		   }
-		   
-	        switch (taggedTypeNameWithSlashes.charAt(0)) {
-	        case 'L':
-	            return typeNameToClass(taggedTypeNameWithSlashes.substring(1));
-	        case '[':
-	            return taggedTypeNameToClass(taggedTypeNameWithSlashes.substring(1));
-	
-	        default:
-	        	return typeNameToClass(taggedTypeNameWithSlashes);
-	        }
-	   } catch (ClassNotFoundException exc) {
-		    throw new InspectionException("could not determine class in type " + taggedTypeNameWithSlashes, exc);
-	   }
-	}
-
-    private static Class<?> typeNameToClass(final String typeNameWithSlashes) throws ClassNotFoundException {
-    	Class<?> simpleType = PRIMITIVES.get(typeNameWithSlashes);
-    	if (simpleType != null) {
-    		return simpleType;
-    	}
-    	
-    	String typeNameWithDots = typeNameWithSlashes.replace('/', '.');
-    	if (typeNameWithDots.endsWith(";")) {
-    		typeNameWithDots = typeNameWithDots.substring(0, typeNameWithDots.length() - 1);
-    	}
-    	return Class.forName(typeNameWithDots);
-    }
-    
-	private static void definePrimitive(final Class<?> primitive) {
-		PRIMITIVES.put(primitive.getName(), primitive);
-		PREFIXES.put(Type.getDescriptor(primitive).charAt(0), primitive);
-	}
 
 }

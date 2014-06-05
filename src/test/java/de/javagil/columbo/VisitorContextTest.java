@@ -125,7 +125,7 @@ public class VisitorContextTest {
 		ctx.leavingMethod();
 		ctx.leavingClass();
 		assertNull(ctx.getCurrentClassName());
-		// TODO should this be reset? assertNull(ctx.getCurrentSource()); 
+		// do NOT reset the source: assertNull(ctx.getCurrentSource()); 
 		assertNull(ctx.getCurrentMethodName());
 		assertNull(ctx.getCurrentMethodDesc());
 		assertNull(ctx.getCurrentLineNumber());

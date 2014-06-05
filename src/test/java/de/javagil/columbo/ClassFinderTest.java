@@ -62,7 +62,7 @@ public class ClassFinderTest {
 	 }
 	 
 	 @Test
-	 @Ignore
+	 @Ignore("FIXME works fine in Eclipse but not with Maven")
 	 public final void findAllClassNameFromAPackageInAJarFile() {
 		 // TODO create a jar with fixed content just for test purposes
 		 ClassFinder cf = new ClassFinder("org.objectweb.asm.commons");

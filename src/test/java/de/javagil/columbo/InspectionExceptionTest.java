@@ -74,4 +74,13 @@ public class InspectionExceptionTest {
 		RuntimeException rtExc = InspectionException.asRuntimeException(origExc);
 		assertEquals(InspectionException.class, rtExc.getClass());
 	}
+	
+	@Test
+	public final void createMethodNotFoundException() {
+		InspectionException exception = InspectionException.createMethodNotFoundException(java.lang.String.class, 
+				"someMethod", new Class<?>[]{ java.lang.String.class, int[].class, boolean.class});
+		assertSame(InspectionException.class, exception.getClass());
+		assertEquals("no method found for java.lang.String#someMethod(java.lang.String, int[], boolean)", 
+					exception.getMessage());
+	}
 }

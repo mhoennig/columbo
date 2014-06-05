@@ -27,7 +27,6 @@ package de.javagil.columbo;
 
 import static de.javagil.columbo.Util.withDefault;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -58,13 +57,13 @@ public class MethodVisitorTest {
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
-	{
-		// temporary code to determine method descriptors for use in test cases
-		String methodDesc = org.objectweb.asm.Type.getMethodDescriptor(
-				org.objectweb.asm.Type.getType(Integer.class), 
-				new org.objectweb.asm.Type[]{org.objectweb.asm.Type.getType(String.class)});
-		System.out.println(methodDesc);
-	}
+//	{
+//		// temporary code to determine method descriptors for use in test cases
+//		String methodDesc = org.objectweb.asm.Type.getMethodDescriptor(
+//				org.objectweb.asm.Type.getType(Integer.class), 
+//				new org.objectweb.asm.Type[]{org.objectweb.asm.Type.getType(String.class)});
+//		System.out.println(methodDesc);
+//	}
 		
 	@Before
 	public final void init() {
@@ -89,10 +88,10 @@ public class MethodVisitorTest {
 		givenWeAreInspectingMethod("someIntegerMethodTakingAString", "(Ljava/lang/String;)Ljava/lang/Integer;");
 		
 		thenExpectException(InspectionException.class, 
-				 "java.lang.NoSuchMethodException: java.lang.String.nonExistantMethod()");
+				 "no method found for java.lang.Integer#nonExistantMethod()");
 		
 		whenFindingBytecodeForMethodInvokation(Opcode.INVOKEVIRTUAL, 
-				"java/lang/String", "nonExistantMethod", "()Ljava/lang/String;");
+				"java/lang/Integer", "nonExistantMethod", "()Ljava/lang/String;");
 	}
 	
 	@Test
@@ -108,17 +107,16 @@ public class MethodVisitorTest {
 	}
 	
 	@Test
-	public final void taggedTypeNameToClassTest() {
-		assertSame(java.lang.Object.class, MethodVisitor.taggedTypeNameToClass("[Ljava/lang/Object"));
-		assertSame(java.lang.Object.class, MethodVisitor.taggedTypeNameToClass("[Ljava/lang/Object;"));
-		
-	}
-	
-	@Test
 	public final void findMethodTest() throws NoSuchMethodException, SecurityException {
 		assertEquals(
 				org.junit.Assert.class.getMethod("assertEquals", array(String.class, long.class, long.class)),
-				MethodVisitor.findMethod(org.junit.Assert.class, "assertEquals", "((Ljava/lang/String;JJ)V))"));
+				methodVisitor.findMethod(org.junit.Assert.class, "assertEquals", "((Ljava/lang/String;JJ)V))"));
+	}
+	
+	@Test
+	public final void arrayOfTest() throws ClassNotFoundException {
+		assertEquals("[I", BytecodeUtil.arrayOf(int.class).getName());
+		assertEquals("[Ljava.lang.Integer;", BytecodeUtil.arrayOf(Integer.class).getName());
 	}
 	
 	// ----- end of test cases ----- test fixture below ------------------------------------------
@@ -156,15 +154,16 @@ public class MethodVisitorTest {
 
 	/** Is called for each found reference.
 	 */
-	class MyReferenceVisitor implements ReferenceVisitor {
+	class MyReferenceVisitor extends ReferenceVisitorAdapter {
 
+		@Override
 		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
 			foundClassReferences.put(referrer, referencedClass);
 		}
 
+		@Override
 		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
 			foundMethodReferences.put(referrer, referencedMethod);
 		}
-		
 	}
 }

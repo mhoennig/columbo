@@ -29,34 +29,26 @@ package de.javagil.columbo;
 import java.lang.reflect.Method;
 
 /**
- *  Callback interface which is called when a reference to a Java class or method was found in the inspected code. 
+ * Empty implementation for interface {@linkl ReferenceVisitor}.
+ * By extending this, you only need to implement the methods you really need. 
+ * 
+ * @author michael.hoennig@javagil.de
  */
-public interface ReferenceVisitor {
+public class ReferenceVisitorAdapter implements ReferenceVisitor {
 
-	/** Is called if a class usage was found (new, instanceof) to determine whether it should be included in the result.
-	 * 
-	 * @param referrer specifies where the reference class is used
-	 * @param referencedClass the class which was used in the given package
-	 */
-	void onClassReference(final Referrer referrer, final Class<?> referencedClass);
-	
-	/** Is called if a method usage was found (call) to determine whether it should be included in the result.
-	 * 
-	 * @param referrer specifies where the reference class is used
-	 * @param referencedMethod the method which was used in the given package
-	 */
-	void onMethodReference(final Referrer referrer, final Method referencedMethod);
+	@Override
+	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
+	}
 
-	/**
-	 * Is called when a method could not be found.  
-	 * This is usually the case when the class which should contain the method,
-	 * is not in the classpath in multiple incompatible version.
-	 * 
-	 * @param clazz the class of the instance of which a method was called
-	 * @param name name of the called method
-	 * @param paramTypes parameter types of the called method
-	 */
-	void onMethodNotFound(Class<?> clazz, String name, Class<?>[] paramTypes);
-	
-	// TODO add foundFieldReference
+	@Override
+	public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+	}
+
+	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
+	@Override
+	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
+	}
+	// CHECKSTYLE:ON
+
 }

@@ -53,7 +53,7 @@ public class ReferrerTest {
 
 	@Test
 	public final void constructReferrerWithInvalidFileName() {
-		final String aClassNameWithSlashes = "de/javagil/bytecodeinspector/BytecodeInspector";
+		final String aClassNameWithSlashes = "de/javagil/columbo/BytecodeInspector";
 		
 		new AssertionContext() {
 			void when() {

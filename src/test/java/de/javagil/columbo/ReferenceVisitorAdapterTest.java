@@ -26,29 +26,26 @@
 
 package de.javagil.columbo;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
+import org.junit.Test;
 
 /**
- * A buffered input stream on the bytecode of a class.
+ * Unit test for clss {@link ReferenceVisitorAdapter}.
  * 
  * @author michael.hoennig@javagil.de
+ *
  */
-class BufferedClassInputStream extends BufferedInputStream {
+public class ReferenceVisitorAdapterTest {
 
-	BufferedClassInputStream(final String className) throws ClassNotFoundException {
-		super(createClassInputStream(className));
-	}
-	
-	private static InputStream createClassInputStream(final String className) throws ClassNotFoundException {
-		String classResName = "/" + className.replaceAll("\\.", "/") + ".class";
-		Class<?> clazz = getClassLoader().loadClass(className);
-		InputStream is = clazz.getResourceAsStream(classResName);  
-	    return is; 
+	private ReferenceVisitor adapter = new ReferenceVisitorAdapter();
+
+	@Test
+	public final void atLeastNoExceptionIsThrownByEmptyImplementations() {
+		adapter.onClassReference(null, null);
+		adapter.onMethodReference(null, null);
 	}
 
-
-	private static ClassLoader getClassLoader() {
-		return Thread.currentThread().getContextClassLoader();
+	@Test(expected = InspectionException.class)
+	public final void anInspectionExceptionIsThrownByDefaultImplementation() {
+		adapter.onMethodNotFound(Void.class, "<no method>", null);
 	}
 }

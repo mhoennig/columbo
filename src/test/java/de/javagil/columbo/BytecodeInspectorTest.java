@@ -30,16 +30,13 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
 import de.javagil.columbo.depr.SomeClassCallingDeprecatedMethods;
 import de.javagil.columbo.depr.SomeClassUsingDateConstructor;
 import de.javagil.columbo.depr.SomeClassUsingDeprecatedClass;
-import de.javagil.columbo.test.SomeTestClass;
 import de.javagil.columbo.test.good.SomeCleanClass;
 
 /**
@@ -63,37 +60,11 @@ public class BytecodeInspectorTest {
 	private List<Referrer> foundReferrers = new ArrayList<Referrer>();
 	
     @Test
-    public final void goodTestClass() throws Exception {
-    	final Set<String> foundReferences = new HashSet<String>();
-    	
-    	givenBytecodeInspectorForClasses(SomeTestClass.class);
-
-    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitor() {
-			
-    		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
-    			foundReferences.add("onClassRef: " + referrer.className + "#" + referrer.methodName + ":" + referrer.line +
-  						" -> " + referencedClass.getCanonicalName());
-    		}
-    		
-    		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
-    			foundReferences.add("onMethodRef: " + referrer.className + "#" + referrer.methodName + ":" + referrer.line +
-  						" -> " + referencedMethod.getDeclaringClass().getCanonicalName() + "#" + referencedMethod.getName());
-     		}
-    		
-    	});
-
-    	// TODO
-//    	thenExpectToFind(
-//    			"onClassRef: de.javagil.bytecodeinspector.test.good.SomeCleanClass#setSomething:null -> java.lang.String");
-    }
-    
-
-    @Test
     public final void nothingFound() throws Exception {
     	
     	givenBytecodeInspectorForClasses(GOOD_TEST_CLASSES);
 
-    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitor() {
+    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitorAdapter() {
 			
     		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
     			if (referencedClass.isAnnotationPresent(Deprecated.class)) {
@@ -118,7 +89,7 @@ public class BytecodeInspectorTest {
     	
     	givenBytecodeInspectorForClasses(BAD_TEST_CLASSES);
 
-    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitor() {
+    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitorAdapter() {
 
 			public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
 			}
@@ -141,7 +112,7 @@ public class BytecodeInspectorTest {
     	
     	givenBytecodeInspectorForClasses(BAD_TEST_CLASSES);
 
-    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitor() {
+    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitorAdapter() {
     		
     		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
     			if (referencedClass.isAnnotationPresent(Deprecated.class)) {
@@ -169,7 +140,7 @@ public class BytecodeInspectorTest {
     	
     	givenBytecodeInspectorForClasses(BAD_TEST_CLASSES);
 
-    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitor() {
+    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitorAdapter() {
 			
     		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
     			if (referencedClass == java.util.Date.class) {
@@ -188,14 +159,6 @@ public class BytecodeInspectorTest {
     }
     
     // --- test fixture -------------------------------------------------------------------------------------
-
-	private void givenBytecodeInspectorForClasses(final Class<?>... testClasses) {
-		Set<String> testClassNames = new HashSet<String>();
-		for (Class<?> clazz: testClasses) {
-			testClassNames.add(clazz.getCanonicalName());
-		}
-		inspector = new BytecodeInspector(testClassNames);
-	}
 
 	private void givenBytecodeInspectorForClasses(final String... testClasses) {
 		 inspector = new BytecodeInspector(testClasses);

@@ -77,5 +77,10 @@ class MyReferenceVisitor implements ReferenceVisitor {
 		referencedClasses.add(referencedMethod.getDeclaringClass());
 	}
 
+	@Override
+	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
+	}
+
 }
 

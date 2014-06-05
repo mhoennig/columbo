@@ -72,11 +72,9 @@ class ClassVisitor extends ClassAdapter {
     								  final String signature, final String[] exceptions) {
     	context.enteringMethod(name, desc);
 
-		Class<?>[] paramTypes = MethodVisitor.determineParameterTypes(desc);
-		if (paramTypes != null) { // TODO check if we can use empty array  
-			for (Class<?> paramType: paramTypes) {
-				referenceVisitor.onClassReference(context.toReferrer(), paramType);
-			}
+		Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+		for (Class<?> paramType: paramTypes) {
+			referenceVisitor.onClassReference(context.toReferrer(), paramType);
 		}
         
         return mv;
