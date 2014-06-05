@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.javagil</groupId>
-  <artifactId>bytecodeinspector</artifactId>
+  <artifactId>columbo</artifactId>
   <packaging>jar</packaging>
   <version>0.0.1</version>
-  <name>bytecodeinspector</name>
+  <name>columbo</name>
   <url>http://maven.apache.org</url>
 
   <build>
@@ -22,7 +22,24 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-    </build>
+
+      <plugins>
+	      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-source-plugin</artifactId>
+		<version>2.2.1</version>
+		<executions>
+		  <execution>
+		    <id>attach-sources</id>
+		    <phase>verify</phase>
+		    <goals>
+		      <goal>jar-no-fork</goal>
+		    </goals>
+		  </execution>
+		</executions>
+	      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
 
