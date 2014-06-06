@@ -30,7 +30,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -54,48 +53,62 @@ public class BufferedClassInputStreamTest {
 		}
 	}
 
-	private BufferedClassInputStream isFromJar, isFromDir, isFromDirInner, isFromDirInnerAnon, isFromDirAnon;
-
-	@Before
-	public final void init() throws ClassNotFoundException {
-		isFromJar = new BufferedClassInputStream(Test.class.getName());
-		isFromDir = new BufferedClassInputStream(BufferedClassInputStreamTest.class.getName());
-		isFromDirInner = new BufferedClassInputStream(BufferedClassInputStreamTest.SomeInnerClass.class.getName());
-		isFromDirInnerAnon = new BufferedClassInputStream(BufferedClassInputStreamTest.SomeInnerClass.getAnonClass().getName());
-		isFromDirAnon = new BufferedClassInputStream(BufferedClassInputStreamTest.getAnonClass().getName());
-	}
+	private BufferedClassInputStream inStream;
 
 	@After
 	public final void cleanup() throws IOException {
-		if (isFromJar != null) {
-			isFromJar.close();
+		if (inStream != null) {
+			inStream.close();
 		}
-		if (isFromDir != null) {
-			isFromDir.close();
-		}
-		if (isFromDirInner != null) {
-			isFromDirInner.close();
-		}
-		// TODO close the others and refactor
 	}
 
 	@Test
-	public final void determineSourceTest() {
-		assertThat(isFromJar.getResourceURL().toExternalForm()).contains("junit-").endsWith("!/org/junit/Test.class");
-		assertThat(isFromDir.getResourceURL().toExternalForm()).
+	public final void determineSourceForClassInJarTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(Test.class))).
+				contains("junit-").endsWith("!/org/junit/Test.class");
+	}
+	
+	@Test
+	public final void determineSourceForClassInDirectoryTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(BufferedClassInputStreamTest.class))).
 				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest.class");
-		assertThat(isFromDirInner.getResourceURL().toExternalForm()).
+	}
+	
+	@Test
+	public final void determineSourceForInnerClassTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(BufferedClassInputStreamTest.SomeInnerClass.class))).
 				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass.class");
-		assertThat(isFromDirInnerAnon.getResourceURL().toExternalForm()).
-				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass$1.class");
-		assertThat(isFromDirAnon.getResourceURL().toExternalForm()).
+	}
+
+	@Test
+	public final void determineSourceForAnonymousClassTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(BufferedClassInputStreamTest.getAnonClass()))).
 				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$1.class");
 	}
 	
+	@Test
+	public final void determineSourceForAnomousClassInInnerClassTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(BufferedClassInputStreamTest.SomeInnerClass.getAnonClass()))).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass$1.class");
+	}
+	
+	// ----- end of tests --- just test fixture below -------------------------------------------
+	
+	private BufferedClassInputStream classInputStreamFor(final Class<?> clazz) throws ClassNotFoundException {
+		inStream = new BufferedClassInputStream(clazz.getName());
+		return inStream;
+	}
+
+	private String urlString(final BufferedClassInputStream classInputStream) {
+		return classInputStream.getResourceURL().toExternalForm();
+	}
+
 	private static Object instOfAnon = new Object() {
 		public String toString() { return "Anon[" + super.toString() + "]"; }
 	};
+
 	public static Class<?> getAnonClass() {			
 		return instOfAnon.getClass();
 	}
+
 }
