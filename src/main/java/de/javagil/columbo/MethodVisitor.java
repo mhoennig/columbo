@@ -25,6 +25,7 @@
 */
 package de.javagil.columbo;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import javassist.bytecode.Opcode;
@@ -54,19 +55,35 @@ class MethodVisitor extends MethodAdapter {
 
 	@Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-        if (opcode == Opcode.INVOKEINTERFACE || opcode == Opcode.INVOKEVIRTUAL || opcode == Opcode.INVOKESTATIC) {
-        	Referrer referrer = context.toReferrer();
-        	
-        	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
-        	referenceVisitor.onClassReference(referrer, rawType(clazz));
+    	Referrer referrer = context.toReferrer();
+    	
+    	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
+    	referenceVisitor.onClassReference(referrer, rawType(clazz));
 
-            final Method method = findMethod(rawType(clazz), name, desc);
-            referenceVisitor.onMethodReference(referrer, method);
-           	referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
-
-            notifyParameterTypes(referrer, method.getParameterTypes());            
+		if (opcode == Opcode.INVOKEINTERFACE || opcode == Opcode.INVOKEVIRTUAL || opcode == Opcode.INVOKESTATIC) {
+            onMethodCall(referrer, clazz, name, desc);            
+        }
+        if (opcode == Opcode.INVOKESPECIAL) {
+        	onConstructorCall(referrer, clazz, name, desc);
         }
     }
+
+	private void onConstructorCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
+		assert "<init>".equals(name) : "expecting constructors to be named <init>, not '" + name + "'";
+		
+		final Constructor<?> constructor = findConstructor(rawType(clazz), desc);
+//		referenceVisitor.onConstructorReference(referrer, constructor);
+//
+//		notifyParameterTypes(referrer, constructor.getParameterTypes());
+	}
+
+	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
+		final Method method = findMethod(rawType(clazz), name, desc);
+		referenceVisitor.onMethodReference(referrer, method);
+		referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
+
+		notifyParameterTypes(referrer, method.getParameterTypes());
+	}
 
 	private void notifyParameterTypes(final Referrer referrer, final Class<?>[] parameterTypes) {
 	    for (Class<?> paramType: parameterTypes) {
@@ -81,6 +98,12 @@ class MethodVisitor extends MethodAdapter {
     	return rawType(type.getComponentType());
 	}
 
+	Constructor<?> findConstructor(final Class<?> clazz, final String desc) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 	Method findMethod(final Class<?> clazz, final String name, final String desc) {
 
 		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
@@ -88,7 +111,8 @@ class MethodVisitor extends MethodAdapter {
 		if (method != null) {
 			return method;
 		}
-		
+
+		// XXX maybe move to caller?
 		referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
 		return null;
 	}

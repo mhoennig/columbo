@@ -54,6 +54,7 @@ public class PackageBytecodeInspectorTest {
 				de.javagil.columbo.test.general.good.SomeCleanClass.class.getCanonicalName());
 		assertThat(referenceVisitor.referencedClasses).containsOnly(
 				int.class,
+				java.lang.Object.class, // for the superclass constructor call
 				java.lang.Integer.class,
 				java.lang.String.class);
 	}
@@ -62,7 +63,7 @@ public class PackageBytecodeInspectorTest {
 /** 
  * Collects bytecode references. 
  */
-class MyReferenceVisitor implements ReferenceVisitor {
+class MyReferenceVisitor extends ReferenceVisitorAdapter {
 
 	final Set<String> refererClasses = new HashSet<String>();
 	final Set<Class<?>> referencedClasses = new HashSet<Class<?>>();
@@ -76,11 +77,5 @@ class MyReferenceVisitor implements ReferenceVisitor {
 		refererClasses.add(referrer.className);
 		referencedClasses.add(referencedMethod.getDeclaringClass());
 	}
-
-	@Override
-	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
-	}
-
 }
 

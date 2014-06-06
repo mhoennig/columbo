@@ -32,8 +32,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+import de.javagil.columbo.test.constructor.SomeClassCallingConstructors;
+import de.javagil.columbo.test.constructor.SomeClassWithContructor;
 import de.javagil.columbo.test.deprecated.SomeClassCallingDeprecatedMethods;
 import de.javagil.columbo.test.deprecated.SomeClassUsingDateConstructor;
 import de.javagil.columbo.test.deprecated.SomeClassUsingDeprecatedClass;
@@ -156,6 +159,32 @@ public class BytecodeInspectorTest {
     			referer(SomeClassUsingDateConstructor.class, "<clinit>", 40),
     			referer(SomeClassUsingDateConstructor.class, "methodUsingDateConstructor", 43),
     			referer(SomeClassUsingDateConstructor.class, "methodUsingDateConstructor", 44));
+    }
+    
+    @Test
+    @Ignore("under development")
+    public final void detectConstructorCallsTest() throws Exception {
+    	givenBytecodeInspectorForClasses(new String[]{SomeClassCallingConstructors.class.getCanonicalName()});
+    	
+    	whenFindCallingMethodsInClassPathUsingMatcher(new ReferenceVisitorAdapter() {
+			
+    		@Override
+    		public void onConstructorCall(final Referrer referrer, final java.lang.reflect.Constructor<?> constructor) {
+    			if (constructor.getDeclaringClass() == SomeClassWithContructor.class) {
+    				foundReferrers.add(referrer);
+    			}
+    		};
+    	});
+
+    	thenExpectToFind(
+    			referer(SomeClassCallingConstructors.class, "<clinit>", 36),
+    			referer(SomeClassCallingConstructors.class, "<clinit>", 37), 
+    			referer(SomeClassCallingConstructors.class, "<init>", 39),
+    			referer(SomeClassCallingConstructors.class, "<init>", 40),
+    			referer(SomeClassCallingConstructors.class, "<init>", 50),
+    			referer(SomeClassCallingConstructors.class, "<init>", 51),
+    			referer(SomeClassCallingConstructors.class, "someMethod", 56), 
+    			referer(SomeClassCallingConstructors.class, "someMethod", 57));
     }
     
     // --- test fixture -------------------------------------------------------------------------------------

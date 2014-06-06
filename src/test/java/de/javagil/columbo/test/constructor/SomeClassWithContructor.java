@@ -24,36 +24,30 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+package de.javagil.columbo.test.constructor;
 
 /**
- * Empty implementation for interface {@linkl ReferenceVisitor}.
- * By extending this, you only need to implement the methods you really need. 
+ * Just some class which calls constructors to detect in a test.
  * 
  * @author michael.hoennig@javagil.de
  */
-public class ReferenceVisitorAdapter implements ReferenceVisitor {
-
-	@Override
-	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
+public class SomeClassWithContructor {
+	
+	private final int dummy;
+	
+	// a default constructor
+	public SomeClassWithContructor() {
+		this.dummy = 42;
+	}
+	
+	// a constructor with a parameter
+	public SomeClassWithContructor(final int dummy) {
+		this.dummy = dummy;
 	}
 
-	@Override
-	public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
-	}
-
-	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
-	@Override
-	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
-	}
-	// CHECKSTYLE:ON
-
-	@Override
-	public void onConstructorCall(final Referrer referrer, final Constructor<?> constructor) {
+	// a non-constructor, NOT to be found
+	public final int getDummy() {
+		return dummy;
 	}
 	
 }

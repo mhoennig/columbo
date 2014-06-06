@@ -24,36 +24,49 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+package de.javagil.columbo.test.constructor;
 
 /**
- * Empty implementation for interface {@linkl ReferenceVisitor}.
- * By extending this, you only need to implement the methods you really need. 
+ * Just some class whose constructor we want to find in a test.
  * 
  * @author michael.hoennig@javagil.de
  */
-public class ReferenceVisitorAdapter implements ReferenceVisitor {
+public class SomeClassCallingConstructors {
+	
+	public static final SomeClassWithContructor CLASS_INIT0 = new SomeClassWithContructor();
+	public static final SomeClassWithContructor CLASS_INIT1 = new SomeClassWithContructor(13);
 
-	@Override
-	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
+	public final SomeClassWithContructor instanceInit0 = new SomeClassWithContructor();
+	public final SomeClassWithContructor instanceInit1 = new SomeClassWithContructor(13);
+
+	public final SomeClassWithContructor constructor0;
+	public final SomeClassWithContructor constructor1;
+	
+	private SomeClassWithContructor method0;
+	private SomeClassWithContructor method1;
+
+	public SomeClassCallingConstructors() {
+		// calls from constructor
+		this.constructor0 = new SomeClassWithContructor();
+		this.constructor1 = new SomeClassWithContructor(99);
+	}
+	
+	// calls from a method
+	final void someMethod() {
+		this.method0 = new SomeClassWithContructor();
+		this.method1 = new SomeClassWithContructor(99);
 	}
 
-	@Override
-	public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+	public final int nothingShouldBeFoundHereAsThereIsNotConstructorCall() {
+		return method0.getDummy();
 	}
 
-	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
-	@Override
-	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
-	}
-	// CHECKSTYLE:ON
-
-	@Override
-	public void onConstructorCall(final Referrer referrer, final Constructor<?> constructor) {
+	public final int nothingShouldBeFoundHereAsThereIsNotConstructorCall(final SomeClassWithContructor ref) {
+		if (ref != null) {
+			return ref.getDummy();
+		} else {
+			return method1.getDummy();
+		}
 	}
 	
 }

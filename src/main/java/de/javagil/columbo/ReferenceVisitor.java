@@ -26,6 +26,7 @@
 
 package de.javagil.columbo;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -33,18 +34,19 @@ import java.lang.reflect.Method;
  */
 public interface ReferenceVisitor {
 
-	/** Is called if a class usage was found (new, instanceof) to determine whether it should be included in the result.
+	/** Is called if a class usage was found (new, instanceof, as parameter, ... anything).
 	 * 
 	 * @param referrer specifies where the reference class is used
 	 * @param referencedClass the class which was used in the given package
 	 */
 	void onClassReference(final Referrer referrer, final Class<?> referencedClass);
 	
-	/** Is called if a method usage was found (call) to determine whether it should be included in the result.
+	/** Is called if a method call was found.
 	 * 
 	 * @param referrer specifies where the reference class is used
 	 * @param referencedMethod the method which was used in the given package
 	 */
+	// TODO rename to onMethodCall
 	void onMethodReference(final Referrer referrer, final Method referencedMethod);
 
 	/**
@@ -57,6 +59,14 @@ public interface ReferenceVisitor {
 	 * @param paramTypes parameter types of the called method
 	 */
 	void onMethodNotFound(Class<?> clazz, String name, Class<?>[] paramTypes);
+
+	/**
+	 * Is called when a constructor invokation was determined.
+	 * 
+	 * @param referrer specifies where the reference class is used
+	 * @param constructor the constructor which is called
+	 */
+	void onConstructorCall(Referrer referrer, Constructor<?> constructor);
 	
 	// TODO add foundFieldReference
 }
