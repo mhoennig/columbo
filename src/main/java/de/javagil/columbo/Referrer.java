@@ -26,6 +26,8 @@
 
 package de.javagil.columbo;
 
+import java.net.URL;
+
 /** Describes the method which uses the specified element.
  */
 public final class Referrer {
@@ -39,18 +41,20 @@ public final class Referrer {
 	public final String className;
     public final String methodName;
     public final String methodDesc;
+    public final URL resource;
     public final String sourceFile;
     public final Integer line;
 
-	Referrer(final String className, final String methodName, final String methodDesc, 
-				final String sourceFile, final Integer line) {
+	Referrer(final String internalClassName, final String methodName, final String methodDesc, 
+				final URL resource, final String sourceFile, final Integer line) {
 		
-		assert className.indexOf('/') == -1 : "not a proper Java class name";
-		assert methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";  
+		assert internalClassName.indexOf('.') == -1 : "not a proper internal Java class name ('/' as separator, not '.')";
+		assert methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";
 		
-        this.className = className;
+		this.className = internalClassName.replace("/", ".");
         this.methodName = methodName;
         this.methodDesc = methodDesc;
+		this.resource = resource;
         this.sourceFile = sourceFile; 
         this.line = line;
     }

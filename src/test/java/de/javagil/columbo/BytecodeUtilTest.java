@@ -30,6 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import java.lang.reflect.Constructor;
+
 import org.junit.Test;
 
 /**
@@ -66,5 +68,13 @@ public class BytecodeUtilTest {
 		assertSame(java.lang.Object[].class, BytecodeUtil.classNameToClass("java.lang.Object[]"));
 	}
 	
+	@Test
+	public final void findConstructorTest() {
+		Constructor<?> ctor = BytecodeUtil.findConstructor(String.class, new Class<?>[]{char[].class, int.class, int.class});
+		assertEquals(String.class, ctor.getDeclaringClass());
+		assertEquals(char[].class, ctor.getParameterTypes()[0]);
+		assertEquals(int.class, ctor.getParameterTypes()[1]);
+		assertEquals(int.class, ctor.getParameterTypes()[2]);
+	}
 
 }

@@ -26,17 +26,24 @@
 
 package de.javagil.columbo;
 
+import java.net.URL;
+
 /**
  * Keeps track of the current context (source/class/method/line) the visitors are scanning. 
  * 
  * @author  michael.hoennig@javagil.de
  */
-class VisitorContext {
+final class VisitorContext {
+	private URL currentResource;
 	private String currentSource;
-	private String currentClassName;
+	private String currentInternalClassName;
 	private String currentMethodName;
 	private String currentMethodDesc;
 	private Integer currentLineNumber;
+
+	URL getCurrentResource() {
+		return currentResource;
+	}
 
 	String getCurrentSource() {
 		return currentSource;
@@ -55,27 +62,29 @@ class VisitorContext {
 	}
 
 	String getCurrentClassName() {
-		return currentClassName;
+		return currentInternalClassName;
 	}
 
-	public void enteringClass(final String name) {
-		assert currentClassName == null : "multiple calls to enteringClass without leavingClass";
+	public void enteringClass(final String internalClassName) {
+		assert internalClassName.indexOf('.') == -1 : "not a proper internal Java class name ('/' as separator, not '.')";
+		assert currentInternalClassName == null : "multiple calls to enteringClass without leavingClass";
 		
-		currentClassName = name;
+		currentInternalClassName = internalClassName;
 		currentMethodName = null;
 		currentMethodDesc = null;
 		currentLineNumber = null;
 	}
 
 	void enteringSource(final String sourceToVisit) {
-		assert currentClassName != null : "enteringSource without preceeding enteringClass";
+		assert currentInternalClassName != null : "enteringSource without preceeding enteringClass";
 		
 		currentSource = sourceToVisit;
 		// do not null the other fields as enteringSource is called AFTER enteringClass
 	}
 	
 	void enteringMethod(final String name, final String desc) {
-		assert currentClassName != null && currentSource != null : "enteringMethod without enteringSource and/or enteringClass";
+		assert currentInternalClassName != null && currentSource != null 
+				: "enteringMethod without enteringSource and/or enteringClass";
 		
         currentMethodName = name;
         currentMethodDesc = desc;
@@ -95,15 +104,25 @@ class VisitorContext {
 	}
 
 	public void leavingClass() {
-		assert currentClassName != null : "leavingClass while not inside of a class";
+		assert currentInternalClassName != null : "leavingClass while not inside of a class";
 		
-		currentClassName = null;
+		currentInternalClassName = null;
+	}
+
+	public void enteringResource(final URL resource) {
+		assert currentResource == null : "enteringResource while already inside of some resource";
+		
+		currentResource = resource;
+	}
+
+	public void leavingResource() {
+		assert currentResource != null : "leavingResource while not inside a resource";
+		
+		currentResource = null;
 	}
 
 	Referrer toReferrer() {
-		// TODO move replace(...) to 'setter' or caller
-		return new Referrer(currentClassName.replace("/", "."), currentMethodName, currentMethodDesc, 
-				currentSource, currentLineNumber);
+		return new Referrer(currentInternalClassName, currentMethodName, currentMethodDesc, 
+				currentResource, currentSource, currentLineNumber);
 	}
-
 }

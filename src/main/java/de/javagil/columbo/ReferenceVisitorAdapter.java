@@ -42,7 +42,7 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 	}
 
 	@Override
-	public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+	public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 	}
 
 	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
@@ -55,5 +55,11 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 	@Override
 	public void onConstructorCall(final Referrer referrer, final Constructor<?> constructor) {
 	}
-	
+
+	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
+	@Override
+	public void onConstructorNotFound(final Class<?> clazz, final Class<?>[] paramTypes) {
+		throw InspectionException.createConstructorNotFoundException(clazz, paramTypes);
+	}
+	// CHECKSTYLE:ON
 }

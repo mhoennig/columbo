@@ -46,8 +46,7 @@ public interface ReferenceVisitor {
 	 * @param referrer specifies where the reference class is used
 	 * @param referencedMethod the method which was used in the given package
 	 */
-	// TODO rename to onMethodCall
-	void onMethodReference(final Referrer referrer, final Method referencedMethod);
+	void onMethodCall(final Referrer referrer, final Method referencedMethod);
 
 	/**
 	 * Is called when a method could not be found.  
@@ -58,7 +57,7 @@ public interface ReferenceVisitor {
 	 * @param name name of the called method
 	 * @param paramTypes parameter types of the called method
 	 */
-	void onMethodNotFound(Class<?> clazz, String name, Class<?>[] paramTypes);
+	void onMethodNotFound(final Class<?> clazz, String name, final Class<?>[] paramTypes);
 
 	/**
 	 * Is called when a constructor invokation was determined.
@@ -66,7 +65,17 @@ public interface ReferenceVisitor {
 	 * @param referrer specifies where the reference class is used
 	 * @param constructor the constructor which is called
 	 */
-	void onConstructorCall(Referrer referrer, Constructor<?> constructor);
+	void onConstructorCall(final Referrer referrer, final Constructor<?> constructor);
+
+	/**
+	 * Is called when a constructor could not be found.  
+	 * This is usually the case when the class which should contain the method,
+	 * is not in the classpath in multiple incompatible version.
+	 * 
+	 * @param clazz the class for which an initialization call was found
+	 * @param paramTypes parameter types of the called constructor
+	 */
+	void onConstructorNotFound(final Class<?> clazz, final Class<?>[] paramTypes);
 	
 	// TODO add foundFieldReference
 }

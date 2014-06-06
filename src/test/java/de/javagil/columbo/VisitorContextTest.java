@@ -50,8 +50,8 @@ public class VisitorContextTest {
 	
 	@Test
 	public final void enteringClassTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
-		assertEquals("de.javagil.mypackage.TestClass", ctx.getCurrentClassName());
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
+		assertEquals("de/javagil/mypackage/TestClass", ctx.getCurrentClassName());
 		assertNull(ctx.getCurrentSource());
 		assertNull(ctx.getCurrentMethodName());
 		assertNull(ctx.getCurrentMethodDesc());
@@ -60,9 +60,9 @@ public class VisitorContextTest {
 
 	@Test
 	public final void enteringClassTwiceTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		try {
-			ctx.enteringClass("de.javagil.mypackage.AnotherTestClass");
+			ctx.enteringClass("de/javagil/mypackage/AnotherTestClass");
 		} catch (AssertionError exc) {
 			assertEquals("multiple calls to enteringClass without leavingClass", exc.getMessage());
 		}
@@ -70,9 +70,9 @@ public class VisitorContextTest {
 
 	@Test
 	public final void enteringSourceTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
-		assertEquals("de.javagil.mypackage.TestClass", ctx.getCurrentClassName());
+		assertEquals("de/javagil/mypackage/TestClass", ctx.getCurrentClassName());
 		assertEquals("TestClass.java", ctx.getCurrentSource());
 		assertNull(ctx.getCurrentMethodName());
 		assertNull(ctx.getCurrentMethodDesc());
@@ -81,10 +81,10 @@ public class VisitorContextTest {
 	
 	@Test
 	public final void enteringMethodTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
 		ctx.enteringMethod("myMethod", "()");
-		assertEquals("de.javagil.mypackage.TestClass", ctx.getCurrentClassName());
+		assertEquals("de/javagil/mypackage/TestClass", ctx.getCurrentClassName());
 		assertEquals("TestClass.java", ctx.getCurrentSource());
 		assertEquals("myMethod", ctx.getCurrentMethodName());
 		assertEquals("()", ctx.getCurrentMethodDesc());
@@ -93,11 +93,11 @@ public class VisitorContextTest {
 	
 	@Test
 	public final void inspectingLineNumberTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
 		ctx.enteringMethod("myMethod", "()");
 		ctx.inspectingLineNumber(42);
-		assertEquals("de.javagil.mypackage.TestClass", ctx.getCurrentClassName());
+		assertEquals("de/javagil/mypackage/TestClass", ctx.getCurrentClassName());
 		assertEquals("TestClass.java", ctx.getCurrentSource());
 		assertEquals("myMethod", ctx.getCurrentMethodName());
 		assertEquals("()", ctx.getCurrentMethodDesc());
@@ -106,11 +106,11 @@ public class VisitorContextTest {
 	
 	@Test
 	public final void leavingMethodTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
 		ctx.enteringMethod("myMethod", "()");
 		ctx.leavingMethod();
-		assertEquals("de.javagil.mypackage.TestClass", ctx.getCurrentClassName());
+		assertEquals("de/javagil/mypackage/TestClass", ctx.getCurrentClassName());
 		assertEquals("TestClass.java", ctx.getCurrentSource());
 		assertNull(ctx.getCurrentMethodName());
 		assertNull(ctx.getCurrentMethodDesc());
@@ -119,7 +119,7 @@ public class VisitorContextTest {
 
 	@Test
 	public final void leavingClassTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
 		ctx.enteringMethod("myMethod", "()");
 		ctx.leavingMethod();
@@ -133,7 +133,7 @@ public class VisitorContextTest {
 
 	@Test
 	public final void toReferrerTest() {
-		ctx.enteringClass("de.javagil.mypackage.TestClass");
+		ctx.enteringClass("de/javagil/mypackage/TestClass");
 		ctx.enteringSource("TestClass.java");
 		ctx.enteringMethod("myMethod", "()");
 		ctx.inspectingLineNumber(42);

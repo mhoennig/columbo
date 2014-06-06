@@ -94,6 +94,7 @@ class ClassVisitor extends ClassAdapter {
 	private void getReferersOfClassName(final String className) {
 		try {
 			BufferedClassInputStream stream = new BufferedClassInputStream(className);
+	        context.enteringResource(stream.getResourceURL());
 	        ClassReader reader = new ClassReader(stream);
  	        reader.accept(this, 0);
 	        stream.close();
@@ -101,6 +102,8 @@ class ClassVisitor extends ClassAdapter {
 			throw new InspectionException(exc);
 		} catch (IOException exc) {
 			throw new InspectionException(exc);
+		} finally {
+			context.leavingResource();
 		}
 	}
 

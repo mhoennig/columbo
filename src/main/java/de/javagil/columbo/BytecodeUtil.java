@@ -26,6 +26,7 @@
 
 package de.javagil.columbo;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -181,6 +182,31 @@ final class BytecodeUtil {
     		} catch (NoSuchMethodException exc2) {
     			if (clazz.getSuperclass() != null) {
     				return findMethod(clazz.getSuperclass(), name, paramTypes);
+    			}
+    			
+    			return null;
+    		}
+    	}
+	}
+
+	/**
+	 * Finds the constructor which would be called by given specification.
+	 * 
+	 * @param clazz the target class of call
+	 * @param paramTypes parameter types
+	 * @return the constructor which would be called by the given specification or null if none found
+	 */
+	public static Constructor<?> findConstructor(final Class<?> clazz, final Class<?>[] paramTypes) {
+		try {
+    		// a public constructor could be found directly
+    		return clazz.getConstructor(paramTypes);
+    	} catch (NoSuchMethodException exc1) {
+    		// otherwise we check each class in hierarchy separately
+    		try {
+    			return clazz.getDeclaredConstructor(paramTypes);
+    		} catch (NoSuchMethodException exc2) {
+    			if (clazz.getSuperclass() != null) {
+    				return findConstructor(clazz.getSuperclass(), paramTypes);
     			}
     			
     			return null;

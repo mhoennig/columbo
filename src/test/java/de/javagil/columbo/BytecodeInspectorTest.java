@@ -32,7 +32,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.javagil.columbo.test.constructor.SomeClassCallingConstructors;
@@ -75,7 +74,7 @@ public class BytecodeInspectorTest {
     			}
     		}
     		
-    		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+    		public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
     			if (referencedMethod.isAnnotationPresent(Deprecated.class) ||
     				referencedMethod.getDeclaringClass().isAnnotationPresent(Deprecated.class)) {
     				foundReferrers.add(referrer);
@@ -97,7 +96,7 @@ public class BytecodeInspectorTest {
 			public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
 			}
 			
-			public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+			public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 				if (referencedMethod.isAnnotationPresent(Deprecated.class)) {
 					foundReferrers.add(referrer);	
 				}
@@ -123,7 +122,7 @@ public class BytecodeInspectorTest {
     			}
     		}
     		
-    		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+    		public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
     			if (referencedMethod.getDeclaringClass().isAnnotationPresent(Deprecated.class)) {
     				foundReferrers.add(referrer);
     			}
@@ -151,7 +150,7 @@ public class BytecodeInspectorTest {
     			}
     		}
     		
-    		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+    		public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
      		}
     	});
 
@@ -162,7 +161,6 @@ public class BytecodeInspectorTest {
     }
     
     @Test
-    @Ignore("under development")
     public final void detectConstructorCallsTest() throws Exception {
     	givenBytecodeInspectorForClasses(new String[]{SomeClassCallingConstructors.class.getCanonicalName()});
     	
@@ -257,6 +255,7 @@ public class BytecodeInspectorTest {
 	}
 
 	private Referrer referer(final Class<?> clazz, final String method, final Integer lineNo) {
-		return new Referrer(clazz.getCanonicalName(), method, null, clazz.getSimpleName() + ".java", lineNo);
+		final String internalClassName = clazz.getName().replace('.', '/');
+		return new Referrer(internalClassName, method, null, null, clazz.getSimpleName() + ".java", lineNo);
 	}
 }

@@ -60,26 +60,30 @@ class MethodVisitor extends MethodAdapter {
     	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
     	referenceVisitor.onClassReference(referrer, rawType(clazz));
 
-		if (opcode == Opcode.INVOKEINTERFACE || opcode == Opcode.INVOKEVIRTUAL || opcode == Opcode.INVOKESTATIC) {
-            onMethodCall(referrer, clazz, name, desc);            
-        }
-        if (opcode == Opcode.INVOKESPECIAL) {
+        if (opcode == Opcode.INVOKESPECIAL && isConstructor(name)) {
         	onConstructorCall(referrer, clazz, name, desc);
+        } else if (opcode == Opcode.INVOKESPECIAL || 
+        		   opcode == Opcode.INVOKEINTERFACE || 
+        		   opcode == Opcode.INVOKEVIRTUAL || 
+        		   opcode == Opcode.INVOKESTATIC) {
+            onMethodCall(referrer, clazz, name, desc);            
         }
     }
 
+	private boolean isConstructor(final String name) {
+		return "<init>".equals(name);
+	}
+
 	private void onConstructorCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
-		assert "<init>".equals(name) : "expecting constructors to be named <init>, not '" + name + "'";
-		
 		final Constructor<?> constructor = findConstructor(rawType(clazz), desc);
-//		referenceVisitor.onConstructorReference(referrer, constructor);
-//
-//		notifyParameterTypes(referrer, constructor.getParameterTypes());
+		referenceVisitor.onConstructorCall(referrer, constructor);
+		
+		notifyParameterTypes(referrer, constructor.getParameterTypes());
 	}
 
 	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
 		final Method method = findMethod(rawType(clazz), name, desc);
-		referenceVisitor.onMethodReference(referrer, method);
+		referenceVisitor.onMethodCall(referrer, method);
 		referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
 
 		notifyParameterTypes(referrer, method.getParameterTypes());
@@ -99,22 +103,25 @@ class MethodVisitor extends MethodAdapter {
 	}
 
 	Constructor<?> findConstructor(final Class<?> clazz, final String desc) {
-		// TODO Auto-generated method stub
-		return null;
+		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+		final Constructor<?> constructor = BytecodeUtil.findConstructor(clazz, paramTypes);
+		if (constructor == null) {
+			// might throw {@link InspectorException}, but not necessarily
+			referenceVisitor.onConstructorNotFound(clazz, paramTypes);
+		} 
+		return constructor;
 	}
 
 
 	Method findMethod(final Class<?> clazz, final String name, final String desc) {
 
 		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
-		Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
-		if (method != null) {
-			return method;
+		final Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
+		if (method == null) {
+			// might throw {@link InspectorException}, but not necessarily
+			referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
 		}
-
-		// XXX maybe move to caller?
-		referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
-		return null;
+		return method;
 	}
 
 	@Override

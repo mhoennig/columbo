@@ -83,4 +83,14 @@ public class InspectionExceptionTest {
 		assertEquals("no method found for java.lang.String#someMethod(java.lang.String, int[], boolean)", 
 					exception.getMessage());
 	}
+
+	
+	@Test
+	public final void createConstructorNotFoundException() {
+		InspectionException exception = InspectionException.createConstructorNotFoundException(java.lang.String.class, 
+				new Class<?>[]{ char[].class});
+		assertSame(InspectionException.class, exception.getClass());
+		assertEquals("no constructor found for java.lang.String(char[])", 
+					exception.getMessage());
+	}
 }

@@ -23,29 +23,30 @@
 	This license becomes void immediately in case of the licensee opening any 
 	law suit against the licensor concerning patent infringement issues. 
 */
+package de.javagil.columbo.testutil;
 
-package de.javagil.columbo;
-
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
- * Unit test for clss {@link ReferenceVisitorAdapter}.
+ * Wraps code to expect an AssertionError. 
+ * Unfortunately expecting an AssertionError can't be handled using @Rule ExpectedException.
  * 
  * @author michael.hoennig@javagil.de
- *
  */
-public class ReferenceVisitorAdapterTest {
+public abstract class AssertionContext {
 
-	private ReferenceVisitor adapter = new ReferenceVisitorAdapter();
+	protected abstract void when() throws Exception;
 
-	@Test
-	public final void atLeastNoExceptionIsThrownByEmptyImplementations() {
-		adapter.onClassReference(null, null);
-		adapter.onMethodCall(null, null);
-	}
-
-	@Test(expected = InspectionException.class)
-	public final void anInspectionExceptionIsThrownByDefaultImplementation() {
-		adapter.onMethodNotFound(Void.class, "<no method>", null);
+	public final void thenExpectAssertionError(final String expectedMessage) {
+		try {
+			when();
+		} catch (AssertionError exc) {
+			assertEquals(expectedMessage, exc.getMessage());
+			return;
+		} catch (Exception exc) {
+			fail("expected AssertionError(" + expectedMessage + ") but got " + exc);
+		}
+		fail("expected AssertionError not thrown");
 	}
 }

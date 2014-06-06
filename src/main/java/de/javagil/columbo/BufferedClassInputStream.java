@@ -28,6 +28,7 @@ package de.javagil.columbo;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * A buffered input stream on the bytecode of a class.
@@ -36,19 +37,37 @@ import java.io.InputStream;
  */
 class BufferedClassInputStream extends BufferedInputStream {
 
+	// TODO HACK find a better solution 
+	private static URL sourceBuffer;
+	private final URL source;
+
 	BufferedClassInputStream(final String className) throws ClassNotFoundException {
-		super(createClassInputStream(className));
+		super(createClassInputStream(className));		
+		source = sourceBuffer;
 	}
 	
 	private static InputStream createClassInputStream(final String className) throws ClassNotFoundException {
 		String classResName = "/" + className.replaceAll("\\.", "/") + ".class";
 		Class<?> clazz = getClassLoader().loadClass(className);
+		sourceBuffer = clazz.getResource(toClassResourceName(clazz));
+		if (sourceBuffer == null) {
+			throw new InspectionException("can't find resource for class " + className + 
+							" identified as " + toClassResourceName(clazz)); 
+		}
 		InputStream is = clazz.getResourceAsStream(classResName);  
 	    return is; 
 	}
 
+	private static String toClassResourceName(final Class<?> clazz) {
+		String name = clazz.getName();
+		return name.substring(name.lastIndexOf('.') + 1) + ".class"; 
+	}
 
 	private static ClassLoader getClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
+	}
+
+	public URL getResourceURL() {
+		return source;
 	}
 }

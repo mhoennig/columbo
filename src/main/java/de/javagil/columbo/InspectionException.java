@@ -97,6 +97,22 @@ public class InspectionException extends RuntimeException {
 					asString(paramTypes));
 	}
 
+	/**
+	 * Creates an {@link InspectionException} for a constructor which was not found.
+	 * In this case the version of the target class in the classpath is
+	 * incompatible to the version from compile time. 
+	 * 
+	 * @param clazz the class on which a constructor was invoked
+	 * @param paramTypes the parameter types
+	 * @return an {@link InspectionException}
+	 */
+	public static InspectionException createConstructorNotFoundException(final Class<?> clazz, final Class<?>[] paramTypes) {
+		assert clazz != null : "class must not be null";
+		
+		return new InspectionException("no constructor found for " + clazz.getName() +
+					asString(paramTypes));	
+	}
+	
 	private static String asString(final Class<?>[] paramTypes) {
 		if (paramTypes == null || paramTypes.length == 0) {
 			return "()";
@@ -108,5 +124,4 @@ public class InspectionException extends RuntimeException {
 		}
 		return asString.substring(0, asString.length() - 2) + ")";
 	}
-	
 }

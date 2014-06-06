@@ -26,9 +26,10 @@
 package de.javagil.columbo;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
+
+import de.javagil.columbo.testutil.AssertionContext;
 
 
 /**
@@ -38,6 +39,7 @@ import org.junit.Test;
  */
 public class ReferrerTest {
 
+	private String givenInternalClassName; 
 	private String givenClassName; 
 	private String givenMethodName;
 	private String givenMethodDesc;
@@ -52,15 +54,16 @@ public class ReferrerTest {
 	}
 
 	@Test
-	public final void constructReferrerWithInvalidFileName() {
-		final String aClassNameWithSlashes = "de/javagil/columbo/BytecodeInspector";
+	public final void constructReferrerWithInvalidClassName() {
+		final String aClassNameWithDots = "de.javagil.columbo.BytecodeInspector";
 		
 		new AssertionContext() {
-			void when() {
-				new Referrer(aClassNameWithSlashes , "test", null, null, null);	
+			@Override
+			public void when() {
+				new Referrer(aClassNameWithDots , "test", null, null, null, null);	
 			}
 
-		} .thenExpectAssertionError("not a proper Java class name");
+		} .thenExpectAssertionError("not a proper internal Java class name ('/' as separator, not '.')");
 	}
 	
 	@Test
@@ -84,6 +87,7 @@ public class ReferrerTest {
 	// ----- end of test cases ----- test fixture below ------------------------------------------
 	
 	private void givenProperReferrerParameters() {
+		givenInternalClassName = "de/javagil/columbo/BytecodeInspector"; 
 		givenClassName = "de.javagil.columbo.BytecodeInspector"; 
 		givenMethodName = "inspect";
 		givenMethodDesc = "(Lde/javagil/columbo/ReferenceVisitor;)Lde/javagil/columbo/BytecodeInspector;";
@@ -92,7 +96,7 @@ public class ReferrerTest {
 	}
 
 	private Referrer whenCreatingReferrer() {
-		return  new Referrer(givenClassName, givenMethodName, givenMethodDesc, givenSource, givenLineNo);
+		return  new Referrer(givenInternalClassName, givenMethodName, givenMethodDesc, null, givenSource, givenLineNo);
 	}
 
 	private void thenPropertiesOfReferrerReflectTheConstructorArguments(final Referrer referer) {
@@ -101,29 +105,6 @@ public class ReferrerTest {
 		assertEquals(givenMethodDesc, referer.methodDesc);
 		assertEquals(givenSource, referer.sourceFile);
 		assertEquals(givenLineNo, referer.line);
-	}
-}
-
-// TODO move to test util class
-/**
- * Wraps code to expect an AssertionError. Unfortunately such can't be handled using @Rule ExpectedException.
- * 
- * @author michael.hoennig@javagil.de
- */
-abstract class AssertionContext {
-
-	abstract void when() throws Exception;
-
-	public void thenExpectAssertionError(final String expectedMessage) {
-		try {
-			when();
-		} catch (AssertionError exc) {
-			assertEquals(expectedMessage, exc.getMessage());
-			return;
-		} catch (Exception exc) {
-			fail("expected AssertionError(" + expectedMessage + ") but got " + exc);
-		}
-		fail("expected AssertionError not thrown");
 	}
 }
 

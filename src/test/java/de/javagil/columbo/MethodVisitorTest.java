@@ -57,17 +57,9 @@ public class MethodVisitorTest {
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
-//	{
-//		// temporary code to determine method descriptors for use in test cases
-//		String methodDesc = org.objectweb.asm.Type.getMethodDescriptor(
-//				org.objectweb.asm.Type.getType(Integer.class), 
-//				new org.objectweb.asm.Type[]{org.objectweb.asm.Type.getType(String.class)});
-//		System.out.println(methodDesc);
-//	}
-		
 	@Before
 	public final void init() {
-		context.enteringClass("de.javagil.bytecodeinspector.test.SomeMethodVistorTestClassToBeInspected");
+		context.enteringClass("de/javagil/bytecodeinspector/test/SomeMethodVistorTestClassToBeInspected");
 		context.enteringSource("SomeMethodVistorTestClassToBeInspected.java");
 	}
 	
@@ -162,7 +154,7 @@ public class MethodVisitorTest {
 		}
 
 		@Override
-		public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+		public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 			foundMethodReferences.put(referrer, referencedMethod);
 		}
 	}

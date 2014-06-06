@@ -73,7 +73,7 @@ class MyReferenceVisitor extends ReferenceVisitorAdapter {
 		referencedClasses.add(referencedClass);
 	}
 
-	public void onMethodReference(final Referrer referrer, final Method referencedMethod) {
+	public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 		refererClasses.add(referrer.className);
 		referencedClasses.add(referencedMethod.getDeclaringClass());
 	}
