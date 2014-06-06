@@ -66,6 +66,7 @@ public class BytecodeUtilTest {
 	
 	@Test
 	public final void taggedTypeNameToClassTest() {
+		assertSame(int.class, BytecodeUtil.taggedTypeNameToClass("I"));
 		assertSame(java.lang.Object.class, BytecodeUtil.taggedTypeNameToClass("Ljava/lang/Object;"));
 		assertSame(java.lang.Object[].class, BytecodeUtil.taggedTypeNameToClass("[Ljava/lang/Object"));
 	}
