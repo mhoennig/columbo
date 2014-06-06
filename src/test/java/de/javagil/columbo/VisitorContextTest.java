@@ -27,6 +27,10 @@ package de.javagil.columbo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.junit.Test;
 
@@ -46,6 +50,21 @@ public class VisitorContextTest {
 		assertNull(ctx.getCurrentLineNumber());
 		assertNull(ctx.getCurrentMethodName());
 		assertNull(ctx.getCurrentMethodDesc());
+	}
+	
+	@Test
+	public final void enteringResource() throws MalformedURLException {
+		URL someResourceURL = new URL("file:////dev/null");
+		ctx.enteringResource(someResourceURL);
+		assertSame(someResourceURL, ctx.getCurrentResource());
+	}
+	
+	@Test
+	public final void leavingResource() throws MalformedURLException {
+		URL someResourceURL = new URL("file:////dev/null");
+		ctx.enteringResource(someResourceURL);
+		ctx.leavingResource();
+		assertNull(ctx.getCurrentResource());
 	}
 	
 	@Test
