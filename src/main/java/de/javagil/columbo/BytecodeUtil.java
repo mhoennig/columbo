@@ -76,6 +76,16 @@ final class BytecodeUtil {
 		}
 		return clazz.getName();
 	}
+	
+	/**
+	 * Determines the resource name of the given class relatively to the classloader of the class.
+	 * 
+	 * @param clazz the class whose resource name we want
+	 * @return relative resource name of the class (e.g. "/java/lang/String.class")
+	 */
+	public static String getResourceClassName(final Class<?> clazz) {
+		return "/" + clazz.getName().replace('.', '/') + ".class";
+	}
 
 	/**
 	 * @param symbol the internal representation of the primitive type, e.g. 'I' for int. 
@@ -213,4 +223,5 @@ final class BytecodeUtil {
     		}
     	}
 	}
+
 }

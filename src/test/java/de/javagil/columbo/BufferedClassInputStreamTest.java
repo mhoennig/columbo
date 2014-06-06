@@ -26,7 +26,6 @@
 package de.javagil.columbo;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -42,11 +41,13 @@ import org.junit.Test;
  */
 public class BufferedClassInputStreamTest {
 
-	// just to test the class reader
-	public static class SomeInnerClass {
+	/**
+	 * just to test the class reader
+	 */
+	static class SomeInnerClass {
 
 		private static Object instOfAnon = new Object() {
-			public String toString() { return "Anon["+super.toString()+"]"; }
+			public String toString() { return "Anon[" + super.toString() + "]"; }
 		};
 		public static Class<?> getAnonClass() {			
 			return instOfAnon.getClass();
@@ -81,14 +82,18 @@ public class BufferedClassInputStreamTest {
 	@Test
 	public final void determineSourceTest() {
 		assertThat(isFromJar.getResourceURL().toExternalForm()).contains("junit-").endsWith("!/org/junit/Test.class");
-		assertThat(isFromDir.getResourceURL().toExternalForm()).endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest.class");
-		assertThat(isFromDirInner.getResourceURL().toExternalForm()).endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass.class");
-		assertThat(isFromDirInnerAnon.getResourceURL().toExternalForm()).endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass$1.class");
-		assertThat(isFromDirAnon.getResourceURL().toExternalForm()).endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$1.class");
+		assertThat(isFromDir.getResourceURL().toExternalForm()).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest.class");
+		assertThat(isFromDirInner.getResourceURL().toExternalForm()).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass.class");
+		assertThat(isFromDirInnerAnon.getResourceURL().toExternalForm()).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass$1.class");
+		assertThat(isFromDirAnon.getResourceURL().toExternalForm()).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$1.class");
 	}
 	
 	private static Object instOfAnon = new Object() {
-		public String toString() { return "Anon["+super.toString()+"]"; }
+		public String toString() { return "Anon[" + super.toString() + "]"; }
 	};
 	public static Class<?> getAnonClass() {			
 		return instOfAnon.getClass();

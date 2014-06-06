@@ -37,25 +37,27 @@ import java.net.URL;
  */
 class BufferedClassInputStream extends BufferedInputStream {
 
-	// TODO HACK find a better solution 
-	private static URL sourceBuffer;
 	private final URL source;
 
 	BufferedClassInputStream(final String className) throws ClassNotFoundException {
-		super(createClassInputStream(className));		
-		source = sourceBuffer;
+		this(createClassResource(className));		
 	}
 	
-	private static InputStream createClassInputStream(final String className) throws ClassNotFoundException {
-		String classResName = "/" + className.replaceAll("\\.", "/") + ".class";
+	private BufferedClassInputStream(final ClassResource classResource) {
+		super(classResource.inputStream);
+		source = classResource.resource;
+	}
+
+	// with this indirection we can avoid calculating the resource twice.
+	// the root problem is that we need to pass one part of the result to the superclass constructor
+	private static ClassResource createClassResource(final String className) throws ClassNotFoundException {
 		Class<?> clazz = getClassLoader().loadClass(className);
-		sourceBuffer = clazz.getResource(toClassResourceName(clazz));
-		if (sourceBuffer == null) {
+		URL resource = clazz.getResource(toClassResourceName(clazz));
+		if (resource == null) {
 			throw new InspectionException("can't find resource for class " + className + 
 							" identified as " + toClassResourceName(clazz)); 
 		}
-		InputStream is = clazz.getResourceAsStream(classResName);  
-	    return is; 
+		return new ClassResource(resource, clazz);
 	}
 
 	private static String toClassResourceName(final Class<?> clazz) {
@@ -69,5 +71,19 @@ class BufferedClassInputStream extends BufferedInputStream {
 
 	public URL getResourceURL() {
 		return source;
+	}
+
+	/**
+	 * Used to compute multiple values at once where one of these needs to be passed to the superclass.
+	 */
+	private static class ClassResource {
+
+		final URL resource;
+		final InputStream inputStream;
+
+		ClassResource(final URL resource, final Class<?> clazz) {
+			this.resource = resource;
+			this.inputStream = clazz.getResourceAsStream(BytecodeUtil.getResourceClassName(clazz));
+		}
 	}
 }
