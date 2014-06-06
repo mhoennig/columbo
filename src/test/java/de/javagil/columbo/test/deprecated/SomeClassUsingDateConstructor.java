@@ -24,7 +24,9 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.depr;
+package de.javagil.columbo.test.deprecated;
+
+import java.util.Date;
 
 /**
  * A class used to run test based on it's JVM bytecode.
@@ -32,12 +34,13 @@ package de.javagil.columbo.depr;
  * @author michael.hoennig@javagil.de
  *
  */
-//ATTENTION: 
-//- changing line number will make tests fail => amend tests
-//- do NOT remove the deprecated elements, they are deliberate
-@Deprecated
-public interface SomeDeprecatedInterface {
+// ATTENTION: changing line number will make tests fail => amend tests
+public class SomeClassUsingDateConstructor {
+	
+	public static Date date0 = new Date();
 
-	void someMethod();
-
+	final void methodUsingDateConstructor() {
+		new Date(); // 1st violation to be found
+		new Date(); // 2nd violation to be found
+	}
 }

@@ -24,16 +24,13 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.test;
+package de.javagil.columbo.test.general;
 
 /**
- * Serves as a test class for bytecode inspection.
+ * Serves as a test interface for bytecode inspection.
  * 
  * @author michael.hoennig@javagil.de
  */
-public class SomeMethodVistorTestClassToBeCalled {
+public interface SomeTestInterface {
 
-	public final Integer someIntegerMethodTakingAString(final String arg1) {
-		return Integer.parseInt(arg1);
-	}
 }

@@ -44,14 +44,14 @@ public class PackageBytecodeInspectorTest {
 	public final void	ctorPackageBytecodeInspector() {
 		final MyReferenceVisitor referenceVisitor = new MyReferenceVisitor();
 
-		PackageBytecodeInspector inspector = new PackageBytecodeInspector("de.javagil.columbo.test");
+		PackageBytecodeInspector inspector = new PackageBytecodeInspector("de.javagil.columbo.test.general");
 		inspector.inspect(referenceVisitor);
 		
 		assertThat(referenceVisitor.refererClasses).containsOnly(
-				de.javagil.columbo.test.SomeTestClass.class.getCanonicalName(),
-				de.javagil.columbo.test.SomeMethodVistorTestClassToBeInspected.class.getCanonicalName(),
-				de.javagil.columbo.test.SomeMethodVistorTestClassToBeCalled.class.getCanonicalName(),
-				de.javagil.columbo.test.good.SomeCleanClass.class.getCanonicalName());
+				de.javagil.columbo.test.general.SomeTestClass.class.getCanonicalName(),
+				de.javagil.columbo.test.general.SomeMethodVistorTestClassToBeInspected.class.getCanonicalName(),
+				de.javagil.columbo.test.general.SomeMethodVistorTestClassToBeCalled.class.getCanonicalName(),
+				de.javagil.columbo.test.general.good.SomeCleanClass.class.getCanonicalName());
 		assertThat(referenceVisitor.referencedClasses).containsOnly(
 				int.class,
 				java.lang.Integer.class,

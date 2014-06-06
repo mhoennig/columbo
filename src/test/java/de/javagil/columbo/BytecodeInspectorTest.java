@@ -34,10 +34,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.javagil.columbo.depr.SomeClassCallingDeprecatedMethods;
-import de.javagil.columbo.depr.SomeClassUsingDateConstructor;
-import de.javagil.columbo.depr.SomeClassUsingDeprecatedClass;
-import de.javagil.columbo.test.good.SomeCleanClass;
+import de.javagil.columbo.test.deprecated.SomeClassCallingDeprecatedMethods;
+import de.javagil.columbo.test.deprecated.SomeClassUsingDateConstructor;
+import de.javagil.columbo.test.deprecated.SomeClassUsingDeprecatedClass;
+import de.javagil.columbo.test.general.good.SomeCleanClass;
 
 /**
  * Unit test for BytecodeInspector.

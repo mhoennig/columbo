@@ -24,7 +24,7 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.depr;
+package de.javagil.columbo.test.deprecated;
 
 /**
  * A class used to run test based on it's JVM bytecode.
@@ -32,28 +32,16 @@ package de.javagil.columbo.depr;
  * @author michael.hoennig@javagil.de
  *
  */
-// ATTENTION: changing line number will make tests fail => amend tests
-// using deprecated elements is a deliberate and necessary for the test case
-@SuppressWarnings("deprecation")
-public class SomeClassUsingDeprecatedClass {
-	
-	public Object something; 
-	
-	public final void callingMethodOfDeprecatedClass() {
-		new SomeDeprecatedClass().someMethod();
-		
+//ATTENTION: 
+//- changing line number will make tests fail => amend tests
+//- do NOT remove the deprecated elements, they are deliberate
+public class SomeClassWithDeprecatedMethods {
+
+	@Deprecated
+	public static void someDeprecatedStaticMethod() {		
 	}
 
-	public final void callingMethodOfDeprecatedInterface(final SomeDeprecatedInterface iface) {
-		iface.someMethod();		
+	@Deprecated
+	public void someDeprecatedInstanceMethod() {		
 	}
-	
-
-	public final void methodHavingDeprecatedInterfaceAsArgument(final SomeDeprecatedInterface iface) {
-	}
-
-	public final boolean methodUsingDeprecatedInterfaceWithInstanceof() {
-		return something instanceof SomeDeprecatedInterface;
-	}
-
 }

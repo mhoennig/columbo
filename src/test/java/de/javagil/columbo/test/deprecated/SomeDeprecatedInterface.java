@@ -24,7 +24,7 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.test.good;
+package de.javagil.columbo.test.deprecated;
 
 /**
  * A class used to run test based on it's JVM bytecode.
@@ -34,16 +34,10 @@ package de.javagil.columbo.test.good;
  */
 //ATTENTION: 
 //- changing line number will make tests fail => amend tests
-public class SomeCleanClass {
+//- do NOT remove the deprecated elements, they are deliberate
+@Deprecated
+public interface SomeDeprecatedInterface {
 
-	private String something = "<init>";
+	void someMethod();
 
-	public final String getSomething() {
-		 return something;
-	}
-
-
-	public final void setSomething(final String something) {
-		 this.something = something;
-	}
 }

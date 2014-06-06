@@ -34,11 +34,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.objectweb.asm.commons.EmptyVisitor;
 
-import de.javagil.columbo.test.SomeMethodVistorTestClassToBeCalled;
-import de.javagil.columbo.test.SomeMethodVistorTestClassToBeInspected;
-import de.javagil.columbo.test.SomeTestClass;
-import de.javagil.columbo.test.SomeTestInterface;
-import de.javagil.columbo.test.good.SomeCleanClass;
+import de.javagil.columbo.test.general.SomeMethodVistorTestClassToBeCalled;
+import de.javagil.columbo.test.general.SomeMethodVistorTestClassToBeInspected;
+import de.javagil.columbo.test.general.SomeTestClass;
+import de.javagil.columbo.test.general.SomeTestInterface;
+import de.javagil.columbo.test.general.good.SomeCleanClass;
 
 /**
  * JUnit test for ClassFinderTest.

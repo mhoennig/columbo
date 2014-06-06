@@ -24,16 +24,20 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.test;
+package de.javagil.columbo.test.general;
 
 /**
  * Serves as a test class for bytecode inspection.
  * 
  * @author michael.hoennig@javagil.de
  */
-public class SomeMethodVistorTestClassToBeInspected {
+public class SomeTestClass {
 
-	public final Integer someIntegerMethodTakingAString(final String arg1) {
-		return Integer.parseInt(arg1);
-	}
+	public static String someClassVar;
+	public static String anotherClassVar = new String("Hallo");
+	public static String thirdClassVar = String.valueOf(42);
+
+	public String someInstanceVar;
+	public String anotherInstanceVar = new String("Hallo"); 
+	public static String thirdInstanceVar = String.valueOf(42);
 }

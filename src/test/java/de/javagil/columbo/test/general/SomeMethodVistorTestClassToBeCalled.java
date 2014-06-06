@@ -24,24 +24,16 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.depr;
+package de.javagil.columbo.test.general;
 
 /**
- * A class used to run test based on it's JVM bytecode.
+ * Serves as a test class for bytecode inspection.
  * 
  * @author michael.hoennig@javagil.de
- *
  */
-//ATTENTION: 
-//- changing line number will make tests fail => amend tests
-//- do NOT remove the deprecated elements, they are deliberate
-public class SomeClassWithDeprecatedMethods {
+public class SomeMethodVistorTestClassToBeCalled {
 
-	@Deprecated
-	public static void someDeprecatedStaticMethod() {		
-	}
-
-	@Deprecated
-	public void someDeprecatedInstanceMethod() {		
+	public final Integer someIntegerMethodTakingAString(final String arg1) {
+		return Integer.parseInt(arg1);
 	}
 }

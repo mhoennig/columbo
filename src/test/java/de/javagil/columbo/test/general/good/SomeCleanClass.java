@@ -24,13 +24,26 @@
 	law suit against the licensor concerning patent infringement issues. 
 */
 
-package de.javagil.columbo.test;
+package de.javagil.columbo.test.general.good;
 
 /**
- * Serves as a test interface for bytecode inspection.
+ * A class used to run test based on it's JVM bytecode.
  * 
  * @author michael.hoennig@javagil.de
+ *
  */
-public interface SomeTestInterface {
+//ATTENTION: 
+//- changing line number will make tests fail => amend tests
+public class SomeCleanClass {
 
+	private String something = "<init>";
+
+	public final String getSomething() {
+		 return something;
+	}
+
+
+	public final void setSomething(final String something) {
+		 this.something = something;
+	}
 }
