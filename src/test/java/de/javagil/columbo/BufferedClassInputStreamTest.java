@@ -92,6 +92,13 @@ public class BufferedClassInputStreamTest {
 				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$SomeInnerClass$1.class");
 	}
 	
+	@Test
+	public final void determineSourceForMethodLocalInnerClassTest() throws ClassNotFoundException {
+		assertThat(urlString(classInputStreamFor(this.getSomeMethodLocalInnerClass()))).
+				endsWith("/target/test-classes/de/javagil/columbo/BufferedClassInputStreamTest$1InnerMethodClass.class");
+	}
+	
+	
 	// ----- end of tests --- just test fixture below -------------------------------------------
 	
 	private BufferedClassInputStream classInputStreamFor(final Class<?> clazz) throws ClassNotFoundException {
@@ -101,6 +108,16 @@ public class BufferedClassInputStreamTest {
 
 	private String urlString(final BufferedClassInputStream classInputStream) {
 		return classInputStream.getResourceURL().toExternalForm();
+	}
+	
+	private Class<?> getSomeMethodLocalInnerClass() {
+		/**
+		 * An inner class within a method for testing purposes. 
+		 */
+		class InnerMethodClass {
+		}
+		
+		return new InnerMethodClass().getClass();
 	}
 
 	private static Object instOfAnon = new Object() {

@@ -208,19 +208,9 @@ final class BytecodeUtil {
 	 */
 	public static Constructor<?> findConstructor(final Class<?> clazz, final Class<?>[] paramTypes) {
 		try {
-    		// a public constructor could be found directly
-    		return clazz.getConstructor(paramTypes);
-    	} catch (NoSuchMethodException exc1) {
-    		// otherwise we check each class in hierarchy separately
-    		try {
-    			return clazz.getDeclaredConstructor(paramTypes);
-    		} catch (NoSuchMethodException exc2) {
-    			if (clazz.getSuperclass() != null) {
-    				return findConstructor(clazz.getSuperclass(), paramTypes);
-    			}
-    			
-    			return null;
-    		}
+    		return clazz.getDeclaredConstructor(paramTypes);
+    	} catch (NoSuchMethodException exc) {
+   			return null;
     	}
 	}
 

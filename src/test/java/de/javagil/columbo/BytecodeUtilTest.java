@@ -26,21 +26,29 @@
 
 package de.javagil.columbo;
 
+import static de.javagil.columbo.testutil.AssertClass.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 import org.junit.Test;
 
 /**
- * Unit test for class {@link  BytecodeUtil}.
+ * Unit test for class {@link BytecodeUtil}.
  * 
  * @author michael.hoennig@javagil.de
  *
  */
 public class BytecodeUtilTest {
+	
+	@Test
+	public final void utilityClassTest() throws Exception {
+		assertThat(BytecodeUtil.class).isUtilityClass();
+	}
 
 	@Test
 	public final void getJavaClassNameTest() {
@@ -64,8 +72,25 @@ public class BytecodeUtilTest {
 	
 	@Test
 	public final void typeNameToClassTest() {
+		// no idea why Sun originally designed it that way, but yes, ...
+		assertSame(int.class, BytecodeUtil.classNameToClass("int")); // ... Java style here ...
+		assertSame(boolean[].class, BytecodeUtil.classNameToClass("[Z")); // ... internal for arrays
+		
 		assertSame(java.lang.Object.class, BytecodeUtil.classNameToClass("java.lang.Object"));
 		assertSame(java.lang.Object[].class, BytecodeUtil.classNameToClass("java.lang.Object[]"));
+	}
+	
+
+	@Test
+	public final void findMethodTest() {
+		Method method = BytecodeUtil.findMethod(String.class, "getChars", 
+							new Class<?>[]{int.class, int.class, char[].class, int.class});
+		assertEquals(String.class, method.getDeclaringClass());
+		assertEquals(int.class, method.getParameterTypes()[0]);
+		assertEquals(int.class, method.getParameterTypes()[1]);
+		assertEquals(char[].class, method.getParameterTypes()[2]);
+		assertEquals(int.class, method.getParameterTypes()[3]);
+		
 	}
 	
 	@Test
@@ -75,6 +100,22 @@ public class BytecodeUtilTest {
 		assertEquals(char[].class, ctor.getParameterTypes()[0]);
 		assertEquals(int.class, ctor.getParameterTypes()[1]);
 		assertEquals(int.class, ctor.getParameterTypes()[2]);
+		
+		assertNull(BytecodeUtil.findConstructor(String.class, new Class<?>[]{Test.class}));
 	}
-
+	
+	@Test
+	public final void getResourceClassNameTest() {
+		assertEquals("/java/lang/String.class", BytecodeUtil.getResourceClassName(java.lang.String.class));
+	}
+	
+	@Test
+	public final void determineParameterTypesTest() {
+		Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes("([ILjava.lang.String;Z)V");
+		assertEquals(3, paramTypes.length);
+		assertEquals(int[].class, paramTypes[0]);
+		assertEquals(String.class, paramTypes[1]);
+		assertEquals(boolean.class, paramTypes[2]);
+	}
+	
 }

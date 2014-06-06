@@ -26,16 +26,39 @@
 
 package de.javagil.columbo;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 /**
+ * Unit test for class {@link ClassVisotor}.
+ * 
  * @author michael.hoennig@javagil.de
  *
  */
 public class ClassVisitorTest {
+	
+	private VisitorContext ctx = new VisitorContext();
+	
+	@Mock
+	private ReferenceVisitor refVisitorMock = new ReferenceVisitorAdapter();
+	
+	private ClassVisitor testee;
+	
+	@Before
+	public final void init() {
+		MockitoAnnotations.initMocks(this);
+		testee = new ClassVisitor(ctx, refVisitorMock);
+	}
 
 	@Test
-	public final void dummy() {
-		
+	public final void visitTest() {
+		testee.visit(1, 2, "java/lang/String", null, null, null);
+		assertEquals("java/lang/String", ctx.getCurrentClassName());
 	}
+	
+	// TODO test to be completed
 }
