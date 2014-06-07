@@ -135,10 +135,10 @@ public class MethodVisitorTest {
 		String foundReferences = "";
 		for (Referrer referrer: foundClassReferences.keySet()) {
 			Class<?> foundReferencedClass = foundClassReferences.get(referrer);
-			if (referrer.methodName.equals(referrerMethod) && referrencedClass == foundReferencedClass) {
+			if (referrer.javaElement.methodName.equals(referrerMethod) && referrencedClass == foundReferencedClass) {
 				return;
 			}
-			foundReferences += "\n" + referrer.methodName + " -> " + foundReferencedClass.getCanonicalName(); 
+			foundReferences += "\n" + referrer.javaElement.methodName + " -> " + foundReferencedClass.getCanonicalName(); 
 		}
 		fail("expected to find method " + referrerMethod + " using " + referrencedClass + ", but not found. Only found:" + 
 				withDefault(foundReferences, " nothing"));

@@ -122,7 +122,7 @@ final class VisitorContext {
 	}
 
 	Referrer toReferrer() {
-		return new Referrer(currentInternalClassName, currentMethodName, currentMethodDesc, 
+		return new Referrer(new JavaElement(currentInternalClassName, currentMethodName, currentMethodDesc), 
 				currentResource, currentSource, currentLineNumber);
 	}
 }

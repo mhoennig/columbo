@@ -38,22 +38,14 @@ public final class Referrer {
 	 */
     public static final Integer NOLINE = null;
     
-	public final String className;
-    public final String methodName;
-    public final String methodDesc;
+	public final JavaElement javaElement;
     public final URL resource;
     public final String sourceFile;
     public final Integer line;
 
-	Referrer(final String internalClassName, final String methodName, final String methodDesc, 
+	Referrer(final JavaElement javaElement,				
 				final URL resource, final String sourceFile, final Integer line) {
-		
-		assert internalClassName.indexOf('.') == -1 : "not a proper internal Java class name ('/' as separator, not '.')";
-		assert methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";
-		
-		this.className = internalClassName.replace("/", ".");
-        this.methodName = methodName;
-        this.methodDesc = methodDesc;
+		this.javaElement = javaElement;
 		this.resource = resource;
         this.sourceFile = sourceFile; 
         this.line = line;
@@ -68,6 +60,6 @@ public final class Referrer {
 	 * @return a textual representation of the contents, omitting the classname 
 	 */
 	public String toContentString() {
-		return className + "#" + methodName + (line != null ? ":" + line : "");
+		return javaElement.toContentString() + (line != null ? ":" + line : "");
 	}
 } 

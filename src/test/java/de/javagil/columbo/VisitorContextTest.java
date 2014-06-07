@@ -159,10 +159,10 @@ public class VisitorContextTest {
 		
 		Referrer referrer = ctx.toReferrer();
 		
-		assertEquals("de.javagil.mypackage.TestClass", referrer.className);
+		assertEquals("de.javagil.mypackage.TestClass", referrer.javaElement.className);
 		assertEquals("TestClass.java", referrer.sourceFile);
-		assertEquals("myMethod", referrer.methodName);
-		assertEquals("()", referrer.methodDesc);
+		assertEquals("myMethod", referrer.javaElement.methodName);
+		assertEquals("()", referrer.javaElement.methodDesc);
 		assertEquals(new Integer(42), referrer.line);
 	}
 }

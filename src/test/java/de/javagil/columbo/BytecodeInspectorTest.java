@@ -244,8 +244,8 @@ public class BytecodeInspectorTest {
 	private boolean isContainedIn(final Referrer findThis, final Referrer[] inHere) {
 		boolean found = false;
 		for (Referrer foundReferrer: inHere) {
-			if (foundReferrer.className.equals(findThis.className) &&
-				foundReferrer.methodName.equals(findThis.methodName) &&
+			if (foundReferrer.javaElement.className.equals(findThis.javaElement.className) &&
+				foundReferrer.javaElement.methodName.equals(findThis.javaElement.methodName) &&
 				areEqual(foundReferrer.line, findThis.line)) {
 				found = true;
 				break;
@@ -256,6 +256,7 @@ public class BytecodeInspectorTest {
 
 	private Referrer referer(final Class<?> clazz, final String method, final Integer lineNo) {
 		final String internalClassName = clazz.getName().replace('.', '/');
-		return new Referrer(internalClassName, method, null, null, clazz.getSimpleName() + ".java", lineNo);
+		return new Referrer(new JavaElement(internalClassName, method, null), 
+					null, clazz.getSimpleName() + ".java", lineNo);
 	}
 }

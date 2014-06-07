@@ -60,7 +60,7 @@ public interface ReferenceVisitor {
 	void onMethodNotFound(final Class<?> clazz, String name, final Class<?>[] paramTypes);
 
 	/**
-	 * Is called when a constructor invokation was determined.
+	 * Is called when a constructor invocation was determined.
 	 * 
 	 * @param referrer specifies where the reference class is used
 	 * @param constructor the constructor which is called

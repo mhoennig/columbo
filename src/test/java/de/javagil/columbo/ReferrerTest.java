@@ -60,7 +60,7 @@ public class ReferrerTest {
 		new AssertionContext() {
 			@Override
 			public void when() {
-				new Referrer(aClassNameWithDots , "test", null, null, null, null);	
+				new Referrer(new JavaElement(aClassNameWithDots, "test", null), null, null, null);	
 			}
 
 		} .thenExpectAssertionError("not a proper internal Java class name ('/' as separator, not '.')");
@@ -96,13 +96,15 @@ public class ReferrerTest {
 	}
 
 	private Referrer whenCreatingReferrer() {
-		return  new Referrer(givenInternalClassName, givenMethodName, givenMethodDesc, null, givenSource, givenLineNo);
+		return new Referrer(
+						new JavaElement(givenInternalClassName, givenMethodName, givenMethodDesc), 
+						null, givenSource, givenLineNo);
 	}
 
 	private void thenPropertiesOfReferrerReflectTheConstructorArguments(final Referrer referer) {
-		assertEquals(givenClassName, referer.className);
-		assertEquals(givenMethodName, referer.methodName);
-		assertEquals(givenMethodDesc, referer.methodDesc);
+		assertEquals(givenClassName, referer.javaElement.className);
+		assertEquals(givenMethodName, referer.javaElement.methodName);
+		assertEquals(givenMethodDesc, referer.javaElement.methodDesc);
 		assertEquals(givenSource, referer.sourceFile);
 		assertEquals(givenLineNo, referer.line);
 	}

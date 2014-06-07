@@ -69,12 +69,12 @@ class MyReferenceVisitor extends ReferenceVisitorAdapter {
 	final Set<Class<?>> referencedClasses = new HashSet<Class<?>>();
 
 	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
-		refererClasses.add(referrer.className);
+		refererClasses.add(referrer.javaElement.className);
 		referencedClasses.add(referencedClass);
 	}
 
 	public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
-		refererClasses.add(referrer.className);
+		refererClasses.add(referrer.javaElement.className);
 		referencedClasses.add(referencedMethod.getDeclaringClass());
 	}
 }
