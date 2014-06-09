@@ -107,20 +107,4 @@ class ClassFinder {
 	    return names;
 	}
 
-	/**
-	 * Thrown on problems searching the classpath. 
-	 */
-	public static class ClassFinderException extends RuntimeException {
-
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Creates an instance from an original exception.
-		 * 
-		 * @param exc the original exception
-		 */
-		public ClassFinderException(final Exception exc) {
-			super(exc);
-		}
-	}
 }

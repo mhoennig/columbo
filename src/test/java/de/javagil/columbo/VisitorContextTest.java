@@ -34,6 +34,8 @@ import java.net.URL;
 
 import org.junit.Test;
 
+import de.javagil.columbo.testutil.AssertionContext;
+
 /**
  * Unit test for class {@VisitorContext}
  * 
@@ -86,6 +88,22 @@ public class VisitorContextTest {
 			assertEquals("multiple calls to enteringClass without leavingClass", exc.getMessage());
 		}
 	}
+	
+	@Test
+	public final void enteringClassWithInvalidNameFormatTest() {
+		new AssertionContext() {
+			
+			@Override
+			protected void when() throws Exception {
+				ctx.enteringClass("de.javagil.mypackage.TestClass");
+			}
+		}.thenExpectAssertionError("not a proper internal Java class name ('/' as separator, not '.')");
+		
+		
+		
+	}
+
+
 
 	@Test
 	public final void enteringSourceTest() {

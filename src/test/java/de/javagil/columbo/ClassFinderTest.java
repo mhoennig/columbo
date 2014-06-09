@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.objectweb.asm.commons.EmptyVisitor;
 
 import de.javagil.columbo.test.general.SomeMethodVistorTestClassToBeCalled;
