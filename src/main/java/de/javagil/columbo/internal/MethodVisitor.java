@@ -88,10 +88,15 @@ class MethodVisitor extends MethodAdapter {
 
 	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
 		final Method method = findMethod(rawType(clazz), name, desc);
-		referenceVisitor.onMethodCall(referrer, method);
-		referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
-
-		notifyParameterTypes(referrer, method.getParameterTypes());
+		if (method == null) {
+			// TODO it's ugly to calculate paramTypes in findMethod as well as here
+			// needs refactoring and test coverage (this is just a hotfix)
+			referenceVisitor.onMethodNotFound(clazz, name, BytecodeUtil.determineParameterTypes(desc));
+		} else {
+			referenceVisitor.onMethodCall(referrer, method);
+			referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
+			notifyParameterTypes(referrer, method.getParameterTypes());
+		}
 	}
 
 	private void notifyParameterTypes(final Referrer referrer, final Class<?>[] parameterTypes) {
