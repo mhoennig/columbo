@@ -27,6 +27,7 @@
 package de.javagil.columbo.api;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 
@@ -52,7 +53,8 @@ public interface ReferenceVisitor {
 	/**
 	 * Is called when a method could not be found.  
 	 * This is usually the case when the class which should contain the method,
-	 * is not in the classpath in multiple incompatible version.
+	 * is not in the CLASSPATH in multiple incompatible version.
+	 * <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
 	 * @param clazz the class of the instance of which a method was called
 	 * @param name name of the called method
@@ -71,12 +73,27 @@ public interface ReferenceVisitor {
 	/**
 	 * Is called when a constructor could not be found.  
 	 * This is usually the case when the class which should contain the method,
-	 * is not in the classpath in multiple incompatible version.
+	 * is not in the CLASSPATH in multiple incompatible version.
+	 * <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
 	 * @param clazz the class for which an initialization call was found
 	 * @param paramTypes parameter types of the called constructor
 	 */
 	void onConstructorNotFound(final Class<?> clazz, final Class<?>[] paramTypes);
+
+	/** Is called if a field access was found.
+	 * 
+	 * @param referrer specifies where the reference class is used
+	 * @param referencedField the method which was used in the given package
+	 */
+	void onFieldAccess(Referrer referrer, Field referencedField);
+
 	
-	// TODO add foundFieldReference
+	/** Is called if a field which is accessed was not found.
+	 *  <p>This usually indicates a CLASSPATH inconsistency.</p> 
+	 * 
+	 * @param referrer specifies where the reference class is used
+	 * @param referencedField the name of the field which was used in the given package
+	 */
+	void onFieldNotFound(Class<?> referrer, String referencedField);
 }

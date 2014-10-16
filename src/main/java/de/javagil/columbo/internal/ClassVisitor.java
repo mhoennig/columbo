@@ -27,6 +27,7 @@
 package de.javagil.columbo.internal;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import org.objectweb.asm.ClassAdapter;
@@ -35,6 +36,7 @@ import org.objectweb.asm.commons.EmptyVisitor;
 
 import de.javagil.columbo.api.InspectionException;
 import de.javagil.columbo.api.ReferenceVisitor;
+import de.javagil.columbo.api.Referrer;
 import de.javagil.columbo.api.VisitorContext;
 
 
@@ -63,8 +65,14 @@ public class ClassVisitor extends ClassAdapter {
     public final void visit(final int version, final int access, final String name, 
     		           final String signature, final String superName, final String[] interfaces) {
         context.enteringClass(name);
+        
+        Referrer referrer = context.toReferrer();
+        Class<?> enteredClass = BytecodeUtil.taggedTypeNameToClass(name);
+        scanAnnotations(referrer, enteredClass);
+        scanSuperclassAndImplementedInterfaces(referrer, enteredClass);
     }
-    //CHECKSTYLE:ON ParameterNumber
+
+	//CHECKSTYLE:ON ParameterNumber
     
     @Override
     public void visitSource(final String sourceToVisit, final String debug) {
@@ -111,5 +119,18 @@ public class ClassVisitor extends ClassAdapter {
 		}
 	}
 
+    private void scanAnnotations(final Referrer referrer, final Class<?> clazz) {
+		for ( Annotation annotation: clazz.getAnnotations() ) {
+			referenceVisitor.onClassReference(referrer, annotation.annotationType());
+		}
+	}
 
+	private void scanSuperclassAndImplementedInterfaces(final Referrer referrer, final Class<?> clazz) {
+		if ( clazz.getSuperclass() != null ) {
+			referenceVisitor.onClassReference(referrer, clazz.getSuperclass());
+		}
+		for ( Class<?> implementedInterface: clazz.getInterfaces() ) {
+			referenceVisitor.onClassReference(referrer, implementedInterface);
+		}
+	}
 }

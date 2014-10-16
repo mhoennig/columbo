@@ -82,7 +82,7 @@ public class InspectionException extends RuntimeException {
 
 	/**
 	 * Creates an {@link InspectionException} for a method which was not found.
-	 * In this case the version of the target class in the classpath is
+	 * In this case the version of the target class in the CLASSPATH is
 	 * incompatible to the version from compile time. 
 	 * 
 	 * @param clazz the class on which a method was called
@@ -101,7 +101,7 @@ public class InspectionException extends RuntimeException {
 
 	/**
 	 * Creates an {@link InspectionException} for a constructor which was not found.
-	 * In this case the version of the target class in the classpath is
+	 * In this case the version of the target class in the CLASSPATH is
 	 * incompatible to the version from compile time. 
 	 * 
 	 * @param clazz the class on which a constructor was invoked
@@ -113,6 +113,22 @@ public class InspectionException extends RuntimeException {
 		
 		return new InspectionException("no constructor found for " + clazz.getName() +
 					asString(paramTypes));	
+	}
+
+	/**
+	 * Creates an {@link InspectionException} for a field which was not found.
+	 * In this case the version of the target class in the CLASSPATH is
+	 * incompatible to the version from compile time. 
+	 * 
+	 * @param clazz the class on which a method was called
+	 * @param name the name of the method
+	 * @return an {@link InspectionException}
+	 */
+	public static InspectionException createFieldNotFoundException(Class<?> clazz, String name) {
+		assert clazz != null : "class must not be null";
+		assert name != null : "name must not be null";
+		
+		return new InspectionException("no field found for " + clazz.getName() + "#" + name);
 	}
 	
 	private static String asString(final Class<?>[] paramTypes) {

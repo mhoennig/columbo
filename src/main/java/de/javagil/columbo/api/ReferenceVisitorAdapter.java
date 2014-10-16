@@ -27,6 +27,7 @@
 package de.javagil.columbo.api;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 
@@ -63,4 +64,16 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 		throw InspectionException.createConstructorNotFoundException(clazz, paramTypes);
 	}
 	// CHECKSTYLE:ON
+
+	@Override
+	public void onFieldAccess(Referrer referrer, Field referencedField) {
+	}
+
+	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
+	@Override
+	public void onFieldNotFound(final Class<?> clazz, final String name) {
+		throw InspectionException.createFieldNotFoundException(clazz, name);
+	}
+	// CHECKSTYLE:ON
+
 }

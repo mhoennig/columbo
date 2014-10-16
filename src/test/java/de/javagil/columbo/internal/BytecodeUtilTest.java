@@ -27,7 +27,6 @@
 package de.javagil.columbo.internal;
 
 import static de.javagil.columbo.testutil.AssertClass.assertThat;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -52,6 +51,10 @@ public class BytecodeUtilTest {
 	
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
+	
+	private Integer someInt;
+	private Integer someInteger;
+	private Integer[] someIntegerArray;
 	
 	@Test
 	public final void utilityClassTest() throws Exception {
@@ -130,6 +133,15 @@ public class BytecodeUtilTest {
 		assertEquals(int[].class, paramTypes[0]);
 		assertEquals(String.class, paramTypes[1]);
 		assertEquals(boolean.class, paramTypes[2]);
+	}
+	
+	@Test
+	public final void rawTypeTest() {
+		assertEquals(Integer.class, BytecodeUtil.rawType(typeOfField("someIntegerArray")));
+	}
+
+	private Class<?> typeOfField(String fieldName) {
+		return BytecodeUtil.findField(getClass(), fieldName).getType();
 	}
 	
 }

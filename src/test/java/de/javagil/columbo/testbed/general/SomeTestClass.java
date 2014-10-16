@@ -31,6 +31,7 @@ package de.javagil.columbo.testbed.general;
  * 
  * @author michael.hoennig@javagil.de
  */
+@SomeAnnotation
 public class SomeTestClass {
 
 	public static String someClassVar;

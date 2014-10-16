@@ -27,6 +27,7 @@
 package de.javagil.columbo.internal;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,4 +217,41 @@ public final class BytecodeUtil {
     	}
 	}
 
+	/**
+	 * Finds the field which would be accessed by given specification.
+	 * 
+	 * @param clazz the target class of call
+	 * @param name name of the field
+	 * @return the field which would be accessed by the given specification or null if none found
+	 */
+	public static Field findField(Class<?> clazz, String name) {
+		try {
+    		// a public field could be found directly
+    		return clazz.getField(name);
+    	} catch (NoSuchFieldException noPublicFieldExc) {
+    		// otherwise we check each class in hierarchy separately
+    		try {
+    			return clazz.getDeclaredField(name);
+    		} catch (NoSuchFieldException notDeclaredFieldExc) {
+    			if (clazz.getSuperclass() != null) {
+    				return findField(clazz.getSuperclass(), name);
+    			}
+    			
+    			return null;
+    		}
+    	}
+	}
+
+	/**
+	 * @param type any type, could be an array generic or raw type
+	 * @return the raw type (removing array and generic part)
+	 */
+	public static Class<?> rawType(final Class<?> type) {
+    	if (!type.isArray()) {
+    		return type;
+    	}
+    	return rawType(type.getComponentType());
+	}
+
+	
 }

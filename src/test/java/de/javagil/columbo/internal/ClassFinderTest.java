@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.objectweb.asm.commons.EmptyVisitor;
 
 import de.javagil.columbo.internal.ClassFinder;
+import de.javagil.columbo.testbed.general.SomeAnnotation;
 import de.javagil.columbo.testbed.general.SomeMethodVistorTestClassToBeCalled;
 import de.javagil.columbo.testbed.general.SomeMethodVistorTestClassToBeInspected;
 import de.javagil.columbo.testbed.general.SomeTestClass;
@@ -52,14 +53,15 @@ public class ClassFinderTest {
 	 public final void findAllClassNames() {
 		 ClassFinder cf = new ClassFinder(SomeTestClass.class.getPackage().getName());
 		 Set<String> allClassNamesInPackage = cf.findAllClassNames();
-		 assertEquals(5, allClassNamesInPackage.size());
+		 assertEquals(6, allClassNamesInPackage.size());
 		 
 		 assertThat(allClassNamesInPackage).containsOnly(
  				SomeTestClass.class.getCanonicalName(), 
  				SomeTestInterface.class.getCanonicalName(),
  				SomeMethodVistorTestClassToBeCalled.class.getCanonicalName(),
  				SomeMethodVistorTestClassToBeInspected.class.getCanonicalName(),
-	 			SomeCleanClass.class.getCanonicalName());
+	 			SomeCleanClass.class.getCanonicalName(),
+	 			SomeAnnotation.class.getCanonicalName());
 	 }
 	 
 	 @Test

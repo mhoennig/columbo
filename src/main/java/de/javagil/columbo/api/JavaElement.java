@@ -40,7 +40,7 @@ public class JavaElement {
 
 	public JavaElement(final String internalClassName, final String methodName, final String methodDesc) {
 		assert internalClassName.indexOf('.') == -1 : "not a proper internal Java class name ('/' as separator, not '.')";
-		assert methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";
+		assert methodName == null || methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";
 
 		this.className = internalClassName.replace("/", ".");
 		this.methodName = methodName;
@@ -51,7 +51,7 @@ public class JavaElement {
 	 * @return a String representation of the content of this method, e.g. for use in exception messages 
 	 */
 	public final String toContentString() {
-		return className + "#" + methodName;
+		return className + (methodName == null ? "" : "#" + methodName);
 	}
 
 }

@@ -33,7 +33,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import de.javagil.columbo.internal.ReferrerImpl;
+import de.javagil.columbo.testbed.general.SomeAnnotation;
+import de.javagil.columbo.testbed.general.SomeTestClass;
+import de.javagil.columbo.testbed.general.good.SomeCleanClass;
 
 /**
  * Unit test for class {@link PackageBytecodeInspector}.
@@ -43,7 +45,7 @@ import de.javagil.columbo.internal.ReferrerImpl;
 public class PackageBytecodeInspectorTest {
 
 	@Test
-	public final void	ctorPackageBytecodeInspector() {
+	public final void ctorPackageBytecodeInspector() {
 		final MyReferenceVisitor referenceVisitor = new MyReferenceVisitor();
 
 		PackageBytecodeInspector inspector = new PackageBytecodeInspector("de.javagil.columbo.testbed.general");
@@ -53,12 +55,19 @@ public class PackageBytecodeInspectorTest {
 				de.javagil.columbo.testbed.general.SomeTestClass.class.getCanonicalName(),
 				de.javagil.columbo.testbed.general.SomeMethodVistorTestClassToBeInspected.class.getCanonicalName(),
 				de.javagil.columbo.testbed.general.SomeMethodVistorTestClassToBeCalled.class.getCanonicalName(),
-				de.javagil.columbo.testbed.general.good.SomeCleanClass.class.getCanonicalName());
+				de.javagil.columbo.testbed.general.good.SomeCleanClass.class.getCanonicalName(),
+				de.javagil.columbo.testbed.general.SomeAnnotation.class.getCanonicalName());
 		assertThat(referenceVisitor.referencedClasses).containsOnly(
-				int.class,
+				int.class, 
 				java.lang.Object.class, // for the superclass constructor call
 				java.lang.Integer.class,
-				java.lang.String.class);
+				java.lang.String.class,
+				java.lang.annotation.Retention.class, // annotation of @SomeTestAnnotation
+				java.lang.annotation.Annotation.class, // super of @SomeTestAnnotation
+				SomeAnnotation.class, // via @SomeTestClass
+				SomeCleanClass.class, // self reference from it's own init-code
+				SomeTestClass.class); // self reference from it's own init-code  
+
 	}
 }
 

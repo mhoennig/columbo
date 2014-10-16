@@ -26,6 +26,7 @@
 package de.javagil.columbo.internal;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javassist.bytecode.Opcode;
@@ -63,7 +64,7 @@ class MethodVisitor extends MethodAdapter {
     	Referrer referrer = context.toReferrer();
     	
     	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
-    	referenceVisitor.onClassReference(referrer, rawType(clazz));
+    	referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(clazz));
 
         if (opcode == Opcode.INVOKESPECIAL && isConstructor(name)) {
         	onConstructorCall(referrer, clazz, name, desc);
@@ -74,45 +75,62 @@ class MethodVisitor extends MethodAdapter {
             onMethodCall(referrer, clazz, name, desc);            
         }
     }
+	
+	@Override
+	public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
+		Referrer referrer = context.toReferrer();
+    	
+    	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
+    	referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(clazz));
+
+        if (opcode == Opcode.GETSTATIC || opcode == Opcode.PUTSTATIC || opcode == Opcode.GETFIELD || opcode == Opcode.PUTFIELD) {
+            onFieldAccess(referrer, clazz, name);            
+        } else {
+        	throw new InspectionException("opcode " + opcode + " not implemented for field instruction");
+        }
+	}
 
 	private boolean isConstructor(final String name) {
 		return "<init>".equals(name);
 	}
 
 	private void onConstructorCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
-		final Constructor<?> constructor = findConstructor(rawType(clazz), desc);
+		final Constructor<?> constructor = findConstructor(BytecodeUtil.rawType(clazz), desc);
 		referenceVisitor.onConstructorCall(referrer, constructor);
 		
 		notifyParameterTypes(referrer, constructor.getParameterTypes());
 	}
 
 	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
-		final Method method = findMethod(rawType(clazz), name, desc);
+		final Method method = findMethod(BytecodeUtil.rawType(clazz), name, desc);
 		if (method == null) {
 			// TODO it's ugly to calculate paramTypes in findMethod as well as here
 			// needs refactoring and test coverage (this is just a hotfix)
 			referenceVisitor.onMethodNotFound(clazz, name, BytecodeUtil.determineParameterTypes(desc));
 		} else {
 			referenceVisitor.onMethodCall(referrer, method);
-			referenceVisitor.onClassReference(referrer, rawType(method.getReturnType()));
+			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(method.getReturnType()));
 			notifyParameterTypes(referrer, method.getParameterTypes());
+		}
+	}
+
+	private void onFieldAccess(final Referrer referrer, final Class<?> clazz, final String name) {
+		final Field field = findField(BytecodeUtil.rawType(clazz), name);
+		if (field == null) {
+			referenceVisitor.onFieldNotFound(clazz, name);
+		} else {
+			referenceVisitor.onFieldAccess(referrer, field);
+			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(field.getType()));
 		}
 	}
 
 	private void notifyParameterTypes(final Referrer referrer, final Class<?>[] parameterTypes) {
 	    for (Class<?> paramType: parameterTypes) {
-	    	referenceVisitor.onClassReference(referrer, rawType(paramType));
+	    	referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(paramType));
 	    }
 	}
 
-    private Class<?> rawType(final Class<?> type) {
-    	if (!type.isArray()) {
-    		return type;
-    	}
-    	return rawType(type.getComponentType());
-	}
-
-	Constructor<?> findConstructor(final Class<?> clazz, final String desc) {
+    Constructor<?> findConstructor(final Class<?> clazz, final String desc) {
 		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
 		final Constructor<?> constructor = BytecodeUtil.findConstructor(clazz, paramTypes);
 		if (constructor == null) {
@@ -132,6 +150,15 @@ class MethodVisitor extends MethodAdapter {
 			referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
 		}
 		return method;
+	}
+
+	Field findField(final Class<?> clazz, final String name) {
+		final Field field = BytecodeUtil.findField(clazz, name);
+		if (field == null) {
+			// might throw {@link InspectorException}, but not necessarily
+			referenceVisitor.onFieldNotFound(clazz, name);
+		}
+		return field;
 	}
 
 	@Override
