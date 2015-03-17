@@ -25,11 +25,12 @@
 */
 package de.javagil.columbo.internal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.javagil.columbo.api.JavaElement;
@@ -52,6 +53,8 @@ public class ReferrerImplTest {
 	private URL givenResourceURL;
 	private String givenSource;
 	private Integer givenLineNo;
+	private URL someResource;
+	private URL anotherResource;
 
 	@Test
 	public final void constructRefererWithValidArguments() throws MalformedURLException {
@@ -100,6 +103,85 @@ public class ReferrerImplTest {
 				referer.toContentString());
 	}
 	
+	@Test
+	public final void hashTest() {
+		JavaElement someJavaElement = new JavaElement("test/Dummy", "testMethodA", "()V");
+		
+		// equal but not same instances with all parameters in either
+		assertSameHash( new ReferrerImpl(someJavaElement, someResource, "Foo.java", 42),
+						new ReferrerImpl(someJavaElement, someResource, "Foo.java", 42) );
+		
+		// variations of Java element parameter
+		assertSameHash( new ReferrerImpl(someJavaElement, null, null, null),
+						new ReferrerImpl(someJavaElement, null, null, null) );
+
+		// variations of resource parameter
+		assertSameHash( new ReferrerImpl(someJavaElement, someResource, null, null),
+						new ReferrerImpl(someJavaElement, someResource, null, null) );
+
+		// variations of source parameter
+		assertSameHash( new ReferrerImpl(someJavaElement, someResource, "Foo.java", null),
+					new ReferrerImpl(someJavaElement, someResource, "Foo.java", null) );
+
+		// variations of line parameter
+		assertSameHash( new ReferrerImpl(someJavaElement, null, null, 42),
+						new ReferrerImpl(someJavaElement, null, null, 42) );
+	}
+	
+	@Test
+	public final void equalsTest() {
+		JavaElement someJavaElement = new JavaElement("test/Dummy", "testMethodA", "()V");
+		JavaElement anotherJavaElement = new JavaElement("test/Dummy", "testMethodB", "()V");
+		
+		// same instance
+		ReferrerImpl someReferrer = new ReferrerImpl(someJavaElement, null, null, null);
+		assertTrue(someReferrer.equals(someReferrer));
+		
+		// equal but not same instances with all parameters in either
+		assertTrue( new ReferrerImpl(someJavaElement, someResource, "Foo.java", 42).equals(
+					new ReferrerImpl(someJavaElement, someResource, "Foo.java", 42) ) );
+		
+		// wrong type
+		assertFalse(new ReferrerImpl(someJavaElement, null, null, null).equals(null));
+		assertFalse(new ReferrerImpl(someJavaElement, null, null, null).equals(""));
+		
+		// variations of Java element parameter
+		assertTrue( new ReferrerImpl(someJavaElement, null, null, null).equals(
+					new ReferrerImpl(someJavaElement, null, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, null, null, null).equals(
+					 new ReferrerImpl(anotherJavaElement, null, null, null) ) );
+
+		// variations of resource parameter
+		assertTrue( new ReferrerImpl(someJavaElement, someResource, null, null).equals(
+					new ReferrerImpl(someJavaElement, someResource, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, someResource, null, null).equals(
+					 new ReferrerImpl(someJavaElement, null, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, someResource, null, null).equals(
+					 new ReferrerImpl(someJavaElement, anotherResource, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, null, null, null).equals(
+					 new ReferrerImpl(someJavaElement, someResource, null, null) ) );
+
+		// variations of source parameter
+		assertTrue( new ReferrerImpl(someJavaElement, someResource, "Foo.java", null).equals(
+					new ReferrerImpl(someJavaElement, someResource, "Foo.java", null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, someResource, "Foo.java", null).equals(
+					 new ReferrerImpl(someJavaElement, someResource, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, someResource, "Foo.java", null).equals(
+					 new ReferrerImpl(someJavaElement, someResource, "Bar.java", null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, someResource, null, null).equals(
+					 new ReferrerImpl(someJavaElement, someResource, "Foo.java", null) ) );
+
+		// variations of line parameter
+		assertTrue( new ReferrerImpl(someJavaElement, null, null, 42).equals(
+					new ReferrerImpl(someJavaElement, null, null, 42) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, null, null, 42).equals(
+					 new ReferrerImpl(someJavaElement, null, null, null) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, null, null, 42).equals(
+					 new ReferrerImpl(someJavaElement, null, null, 99) ) );
+		assertFalse( new ReferrerImpl(someJavaElement, null, null, null).equals(
+					 new ReferrerImpl(someJavaElement, null, null, 42) ) );
+	}
+	
 	// ----- end of test cases ----- test fixture below ------------------------------------------
 
 	private void givenProperReferrerParametersWithLineNo(int lineNo) throws MalformedURLException {
@@ -133,6 +215,16 @@ public class ReferrerImplTest {
 		assertEquals(givenResourceURL, referer.getResourceURL());
 		assertEquals(givenSource, referer.getSourceFile());
 		assertEquals(givenLineNo, referer.getLineNo());
+	}
+	
+	private void assertSameHash(ReferrerImpl referrerImpl1, ReferrerImpl referrerImpl2) {
+		assertEquals(referrerImpl1.hashCode(), referrerImpl2.hashCode());
+	}
+
+	@Before
+	public void init() throws MalformedURLException {
+		someResource = new URL("file:////dummy/some.jar");
+		anotherResource = new URL("file:////dummy/another.jar");
 	}
 }
 

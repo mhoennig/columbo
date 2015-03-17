@@ -26,6 +26,12 @@
 
 package de.javagil.columbo.api;
 
+import java.lang.reflect.Method;
+
+import javax.annotation.Generated;
+
+import de.javagil.columbo.internal.BytecodeUtil;
+
 /**
  * Describes the java element (class initializer, instance initializer, method) 
  * which refers to some found usage.
@@ -41,6 +47,7 @@ public class JavaElement {
 	public JavaElement(final String internalClassName, final String methodName, final String methodDesc) {
 		assert internalClassName.indexOf('.') == -1 : "not a proper internal Java class name ('/' as separator, not '.')";
 		assert methodName == null || methodName.indexOf('.') == -1 && methodName.indexOf('/') == -1 : "not a proper method name";
+		assert (methodName == null && methodDesc == null) || (methodName != null && methodDesc != null) : "must have method name and desc nor neither";
 
 		this.className = internalClassName.replace("/", ".");
 		this.methodName = methodName;
@@ -52,6 +59,53 @@ public class JavaElement {
 	 */
 	public final String toContentString() {
 		return className + (methodName == null ? "" : "#" + methodName);
+	}
+
+	/**
+	 * @return this Java element as a method reflection instance or null if not a method
+	 * 
+	 * @throws InspectionException if this element refers to a non-existing method
+	 */
+	public Method getJavaMethod() {
+		if ( "<init>".equals(methodName) ) {
+			return null;
+		}
+		try {
+			final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(methodDesc);
+			final Class<?> clazz = Class.forName(className);
+			return BytecodeUtil.findMethod(clazz, methodName, paramTypes);
+		} catch (ClassNotFoundException exc) {
+			throw new InspectionException(exc);
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + className.hashCode();
+		result = prime * result + ((methodDesc == null) ? 0 : methodDesc.hashCode());
+		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JavaElement other = (JavaElement) obj;
+		if (!className.equals(other.className))
+			return false;
+		
+		// invariant: methodName+methodDesc are either both null or both not null
+		if (methodName == null) {
+			return other.methodName == null;
+		}
+		return methodName.equals(other.methodName) && methodDesc.equals(other.methodDesc);  
 	}
 
 }

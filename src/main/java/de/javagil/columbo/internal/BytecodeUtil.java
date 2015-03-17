@@ -99,8 +99,12 @@ public final class BytecodeUtil {
 	}
 	
     
-	static Class<?>[] determineParameterTypes(final String desc) {
-		Type[] argTypes = Type.getArgumentTypes(desc);
+	/**
+	 * @param parameterDesc the method parameter description
+	 * @return an array containing the parameter classes for a method
+	 */
+	public static Class<?>[] determineParameterTypes(final String parameterDesc) {
+		Type[] argTypes = Type.getArgumentTypes(parameterDesc);
 		
 		List<Class<?>> paramTypeList = new ArrayList<Class<?>>();
 		for (int n = 0; n < argTypes.length; ++n) {
@@ -175,7 +179,7 @@ public final class BytecodeUtil {
 		PRIMITIVE_NAMES.put(primitive.getName(), primitive);
 		PRIMITIVE_SYMBOLS.put(Type.getDescriptor(primitive).charAt(0), primitive);
 	}
-
+	
 	/**
 	 * Finds the method which would be called by given specification.
 	 * 

@@ -35,7 +35,7 @@ import de.javagil.columbo.api.Referrer;
  */
 public final class ReferrerImpl implements Referrer {
 	
-	/**
+		/**
 	 * Used for line number in declarative code 
 	 * because such code does not have line numbers anymore at runtime.
 	 */
@@ -48,6 +48,8 @@ public final class ReferrerImpl implements Referrer {
 
 	public ReferrerImpl(final JavaElement javaElement,				
 				final URL resource, final String sourceFile, final Integer line) {
+		assert javaElement != null : "javaElement must not be null";
+		
 		this.javaElement = javaElement;
 		this.resource = resource;
         this.sourceFile = sourceFile; 
@@ -82,5 +84,45 @@ public final class ReferrerImpl implements Referrer {
 	@Override
 	public Integer getLineNo() {
 		return line;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + javaElement.hashCode();
+		result = prime * result + ((line == null) ? 0 : line.hashCode());
+		result = prime * result + ((resource == null) ? 0 : resource.hashCode());
+		result = prime * result + ((sourceFile == null) ? 0 : sourceFile.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ReferrerImpl other = (ReferrerImpl) obj;
+		if (!javaElement.equals(other.javaElement))
+			return false;
+		if (line == null) {
+			if (other.line != null)
+				return false;
+		} else if (!line.equals(other.line))
+			return false;
+		if (resource == null) {
+			if (other.resource != null)
+				return false;
+		} else if (!resource.equals(other.resource))
+			return false;
+		if (sourceFile == null) {
+			if (other.sourceFile != null)
+				return false;
+		} else if (!sourceFile.equals(other.sourceFile))
+			return false;
+		return true;
 	}
 } 

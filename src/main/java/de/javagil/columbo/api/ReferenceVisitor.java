@@ -39,14 +39,21 @@ public interface ReferenceVisitor {
 	/** Is called if a class usage was found (new, instanceof, as parameter, ... anything).
 	 * 
 	 * @param referrer specifies where the reference class is used
-	 * @param referencedClass the class which was used in the given package
+	 * @param referencedClass the class which was used in the given context
 	 */
 	void onClassReference(final Referrer referrer, final Class<?> referencedClass);
 	
+	/** Is called if a method is overridden.
+	 * 
+	 * @param referrer specifies where the method is overridden
+	 * @param referencedMethod the method which was overridden in the given context
+	 */
+	void onMethodOverride(Referrer referrer, Method referencedMethod);
+
 	/** Is called if a method call was found.
 	 * 
 	 * @param referrer specifies where the reference class is used
-	 * @param referencedMethod the method which was used in the given package
+	 * @param referencedMethod the method which was used in the given context
 	 */
 	void onMethodCall(final Referrer referrer, final Method referencedMethod);
 
@@ -84,7 +91,7 @@ public interface ReferenceVisitor {
 	/** Is called if a field access was found.
 	 * 
 	 * @param referrer specifies where the reference class is used
-	 * @param referencedField the method which was used in the given package
+	 * @param referencedField the method which was used in the given context
 	 */
 	void onFieldAccess(Referrer referrer, Field referencedField);
 
@@ -93,7 +100,7 @@ public interface ReferenceVisitor {
 	 *  <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
 	 * @param referrer specifies where the reference class is used
-	 * @param referencedField the name of the field which was used in the given package
+	 * @param referencedField the name of the field which was used in the given context
 	 */
 	void onFieldNotFound(Class<?> referrer, String referencedField);
 }

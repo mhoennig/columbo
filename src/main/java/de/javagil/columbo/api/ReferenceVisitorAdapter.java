@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 
 
 /**
- * Empty implementation for interface {@linkl ReferenceVisitor}.
+ * Empty implementation for interface {@link ReferenceVisitor}.
  * By extending this, you only need to implement the methods you really need. 
  * 
  * @author michael.hoennig@javagil.de
@@ -41,6 +41,10 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 
 	@Override
 	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
+	}
+
+	@Override
+	public void onMethodOverride(final Referrer referrer, final Method referencedMethod) {
 	}
 
 	@Override

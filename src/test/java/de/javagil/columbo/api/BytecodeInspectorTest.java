@@ -29,9 +29,12 @@ import static org.junit.Assert.fail;
 import static de.javagil.columbo.internal.Util.areEqual;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.javagil.columbo.api.Referrer;
@@ -62,7 +65,7 @@ public class BytecodeInspectorTest {
 	
 	private BytecodeInspector inspector;
 	private List<Referrer> foundReferrers = new ArrayList<Referrer>();
-	
+
     @Test
     public final void nothingFound() throws Exception {
     	
@@ -258,7 +261,7 @@ public class BytecodeInspectorTest {
 
 	private Referrer referer(final Class<?> clazz, final String method, final Integer lineNo) {
 		final String internalClassName = clazz.getName().replace('.', '/');
-		return new ReferrerImpl(new JavaElement(internalClassName, method, null), 
+		return new ReferrerImpl(new JavaElement(internalClassName, method, "()V"), 
 					null, clazz.getSimpleName() + ".java", lineNo);
 	}
 }

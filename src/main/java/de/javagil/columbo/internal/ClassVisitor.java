@@ -28,6 +28,7 @@ package de.javagil.columbo.internal;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.objectweb.asm.ClassAdapter;
@@ -83,16 +84,34 @@ public class ClassVisitor extends ClassAdapter {
     public MethodVisitor visitMethod(final int access, final String name, final String desc, 
     								  final String signature, final String[] exceptions) {
     	context.enteringMethod(name, desc);
+    	Referrer referrer = context.toReferrer();
 
 		Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
 		for (Class<?> paramType: paramTypes) {
-			referenceVisitor.onClassReference(context.toReferrer(), paramType);
+			referenceVisitor.onClassReference(referrer, paramType);
+		}
+		
+		Method method = referrer.getJavaElement().getJavaMethod();
+		if ( method != null ) {
+			if ( method.getDeclaringClass().getSuperclass() != null ) {
+				checkMethodOverride(referrer, method.getDeclaringClass().getSuperclass(), method);
+			}
+			for ( Class<?> implementedInterface: method.getDeclaringClass().getInterfaces() ) {
+				checkMethodOverride(referrer, implementedInterface, method);
+			}
 		}
         
         return mv;
     }
 
-    @Override
+    private void checkMethodOverride(Referrer referrer, Class<?> declaringClass, Method method) {
+		Method overriddenMethod = BytecodeUtil.findMethod(declaringClass, method.getName(), method.getParameterTypes());
+		if ( overriddenMethod != null ) {
+			referenceVisitor.onMethodOverride(referrer, overriddenMethod);
+		}
+	}
+
+	@Override
     public void visitEnd() {
     	context.leavingClass();
     }

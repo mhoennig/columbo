@@ -27,14 +27,28 @@
 package de.javagil.columbo.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.AbstractList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.fest.assertions.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import de.javagil.columbo.api.JavaElement;
 import de.javagil.columbo.api.ReferenceVisitor;
 import de.javagil.columbo.api.ReferenceVisitorAdapter;
+import de.javagil.columbo.api.Referrer;
 import de.javagil.columbo.api.VisitorContext;
 
 
@@ -46,6 +60,8 @@ import de.javagil.columbo.api.VisitorContext;
  */
 public class ClassVisitorTest {
 	
+	private static final int MIN_EXPECTED_NUMBER_OF_METHOD_OVERRIDES = 10;
+
 	private VisitorContext ctx = new VisitorContext();
 	
 	@Mock
@@ -54,8 +70,9 @@ public class ClassVisitorTest {
 	private ClassVisitor testee;
 	
 	@Before
-	public final void init() {
+	public final void init() throws MalformedURLException {
 		MockitoAnnotations.initMocks(this);
+		ctx.enteringResource(new URL("file:///dummy.java"));
 		testee = new ClassVisitor(ctx, refVisitorMock);
 	}
 
@@ -63,7 +80,47 @@ public class ClassVisitorTest {
 	public final void visitTest() {
 		testee.visit(1, 2, "java/lang/String", null, null, null);
 		assertEquals("java/lang/String", ctx.getCurrentClassName());
+		
+		testee.visitSource("String.java", null);
+		assertEquals("java.lang.String", ctx.toReferrer().toContentString());
+		
+		testee.visitMethod(1, "length", "()I", "signature?", null);
+		assertEquals("java.lang.String#length", ctx.toReferrer().toContentString());
+		
+		testee.visitEnd();
+		assertNull(ctx.getCurrentClassName());
 	}
 	
-	// TODO test to be completed
+	/**
+	 * Tests whether {@link ClassVisitor#inspect} issues callbacks at all.
+	 */
+	@Test
+	public final void inspectTest() throws MalformedURLException, SecurityException, NoSuchMethodException {
+		ctx.leavingResource(); // for this test we need a clean environment
+		Set<String> classNamesToInspect = new HashSet<String>();
+		classNamesToInspect.add(String.class.getName());
+		classNamesToInspect.add(Long.class.getName());
+		
+		testee.inspect(classNamesToInspect);
+
+		// @formatter:off
+		ArgumentCaptor<Method> methodCaptor = ArgumentCaptor.forClass(Method.class);
+		Mockito.verify(refVisitorMock, Mockito.atLeast(MIN_EXPECTED_NUMBER_OF_METHOD_OVERRIDES)).
+			onMethodOverride(Mockito.any(Referrer.class), methodCaptor.capture());
+		Assertions.assertThat(methodCaptor.getAllValues()).contains( 
+				java.lang.Number.class.getMethod("byteValue"),
+				java.lang.CharSequence.class.getMethod("length") );
+		// @formatter:on
+	}
+	
+	@Test
+	public final void visitMethodCallsOnMethodOverride() throws Exception {
+		ctx.enteringClass("java/util/ArrayList");
+		ctx.enteringSource("java/util/ArrayList.java");
+		testee.visitMethod(1, "add", "(Ljava.lang.Object;)Z", null, null);
+		
+		Referrer expectedReferrer = ctx.toReferrer();
+		Method expectedMethod = AbstractList.class.getMethod("add", Object.class);
+		Mockito.verify(refVisitorMock).onMethodOverride(expectedReferrer, expectedMethod);
+	}
 }
