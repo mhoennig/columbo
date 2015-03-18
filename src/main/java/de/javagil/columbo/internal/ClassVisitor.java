@@ -29,6 +29,7 @@ package de.javagil.columbo.internal;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import org.objectweb.asm.ClassAdapter;
@@ -106,7 +107,7 @@ public class ClassVisitor extends ClassAdapter {
 
     private void checkMethodOverride(Referrer referrer, Class<?> declaringClass, Method method) {
 		Method overriddenMethod = BytecodeUtil.findMethod(declaringClass, method.getName(), method.getParameterTypes());
-		if ( overriddenMethod != null ) {
+		if ( overriddenMethod != null && !Modifier.isPrivate(overriddenMethod.getModifiers()) ) {
 			referenceVisitor.onMethodOverride(referrer, overriddenMethod);
 		}
 	}
