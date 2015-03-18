@@ -31,16 +31,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
-/**
- * Marks the annotated element that it must not be overridden in domain code.
- * <p>
- * This annotation can be used similar to the Java 'final' keyword in situations where it can't 
- * be used for technical reasons (e.g. because this would also prevent CDI or other proxies) 
- * or when explicit control is needed about which code is allowed to override the method.
+/** Marks the annotated element as package-internal. A test can check if this access limitation is
+ * violated.
  */
 @Target(value = ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Final {
-
+public @interface Internal {
+	/**
+	 * Specifies the package-hierarchy to which this element is internal.
+	 * Other than in Java sub-Packages are included.
+	 * Default (empty string) means package local to the package of the element which is annotated with @Internal. 
+	 */
+	String value() default "";
 }
