@@ -34,7 +34,6 @@ import java.lang.annotation.ElementType;
 /** Marks the annotated element as package-internal. A test can check if this access limitation is
  * violated.
  */
-@Target(value = ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Internal {

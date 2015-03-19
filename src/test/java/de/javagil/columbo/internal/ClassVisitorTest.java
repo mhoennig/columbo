@@ -32,9 +32,7 @@ import static org.junit.Assert.assertNull;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.AbstractList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.fest.assertions.Assertions;
@@ -45,12 +43,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.javagil.columbo.api.JavaElement;
 import de.javagil.columbo.api.ReferenceVisitor;
 import de.javagil.columbo.api.ReferenceVisitorAdapter;
 import de.javagil.columbo.api.Referrer;
 import de.javagil.columbo.api.VisitorContext;
-import de.javagil.columbo.internal.BufferedClassInputStreamTest.SomeInnerClass;
 
 
 /**
@@ -124,6 +120,9 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 	
+	/** Tests whether ClassVisitor.onMethodOverride(...) is NOT called (and also for no other method) 
+	 *  if a private method of the superclass is re-implemented.
+	 */
 	@Test
 	public final void visitMethodDoesNotCallOnMethodOverrideIfPrivateInSuper() throws Exception {
 		whenVisiting(SomeClientClass.class, "someMethodWhichIsPrivateInSuper", "(I,Ljava.lang.String;)I");
@@ -131,6 +130,9 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 	
+	/** Tests whether ClassVisitor.onMethodOverride(...) is called 
+	 *  if a method is overridden which has protected access in the super class.
+	 */
 	@Test
 	public final void visitMethodCallsOnMethodOverrideIfProtectedInSuper() throws Exception {
 		whenVisiting(SomeClientClass.class, "someMethodWhichIsProtectedInSuper", "(I,Ljava.lang.String;)I");
@@ -138,6 +140,9 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 
+	/** Tests whether ClassVisitor.onMethodOverride(...) is called 
+	 *  if a method is overridden which has public access in the super class.
+	 */
 	@Test
 	public final void visitMethodCallsOnMethodOverrideIfPublicInSuper() throws Exception {
 		whenVisiting(SomeClientClass.class, "someMethodWhichIsPublicInSuper", "(I,Ljava.lang.String;)I");
@@ -145,6 +150,9 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 
+	/** Tests whether ClassVisitor.onMethodOverride(...) is called 
+	 *  if a method from an interface of a superclass is overridden.
+	 */
 	@Test
 	public final void visitMethodCallsOnMethodOverrideIfDeclaredInIndirectInterface() throws Exception {
 		whenVisiting(SomeClientClass.class, "someMethodFromIndirectInterface", "(I,Ljava.lang.String;)I");
@@ -152,6 +160,9 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 	
+	/** Tests whether ClassVisitor.onMethodOverride(...) is called for both methods  
+	 *  if a method overrides a method which is in a superclass ass well as in a directly implemented interface. 
+	 */
 	@Test
 	public final void visitMethodCallsOnMethodOverrideIfDeclaredInDirectInterfaceAndSuper() throws Exception {
 		whenVisiting(SomeClientClass.class, "someMethodFromDirectInterface", "(I,Ljava.lang.String;)I");
@@ -226,6 +237,7 @@ abstract class SomeFrameworkClass implements SomeFrameworkInterface {
 		return 0;
 	}
 
+	@SuppressWarnings("unused") // just by reflection
 	private int someMethodWhichIsPrivateInSuper(final int count, String name) {
 		return 0;
 	}
