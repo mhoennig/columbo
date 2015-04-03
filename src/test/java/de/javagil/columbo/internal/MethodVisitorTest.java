@@ -164,6 +164,27 @@ public class MethodVisitorTest {
 		assertEquals("[Ljava.lang.Integer;", BytecodeUtil.arrayOf(Integer.class).getName());
 	}
 	
+	@Test
+	public final void visitTypeInsnWithExistingClassCallsOnClassReference() {
+		givenWeAreInspectingMethod("someMethod", "()V;");
+		
+		// ... instanceof java.lang.Number 
+		methodVisitor.visitTypeInsn(Opcode.INSTANCEOF, "java/lang/Number");
+		thenExpectToHaveFoundClassReferenceFrom("someMethod", Number.class);
+
+		// new java.lang.Long[...]
+		methodVisitor.visitTypeInsn(Opcode.NEW, "[Ljava/lang/Long");
+		thenExpectToHaveFoundClassReferenceFrom("someMethod", Long[].class);
+	}
+	
+	@Test
+	public final void visitTypeInsnWithInvalidClassThrowsException() {
+		givenWeAreInspectingMethod("someMethod", "()V;");
+		
+		expectedException.expect(InspectionException.class);
+		methodVisitor.visitTypeInsn(Opcode.INSTANCEOF, "java/lang/NonExistingClass");
+	}
+	
 	// ----- end of test cases ----- test fixture below ------------------------------------------
 	
 	private Class<?>[] array(final Class<?>... classes) {

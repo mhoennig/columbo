@@ -163,13 +163,9 @@ class MethodVisitor extends MethodAdapter {
 
 	@Override
 	public void visitTypeInsn(final int opcode, final String type) {
-		try  {
-			if (opcode == Opcode.NEW || opcode == Opcode.INSTANCEOF) { 
-				Class<?> clazz = BytecodeUtil.typeNameToClass(type);
-				referenceVisitor.onClassReference(context.toReferrer(), clazz); 
-			}
-		} catch (ClassNotFoundException exc) {
-        	throw new InspectionException(exc);
+		if (opcode == Opcode.NEW || opcode == Opcode.INSTANCEOF) {
+			Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(type);
+			referenceVisitor.onClassReference(context.toReferrer(), clazz);
 		}
     	super.visitTypeInsn(opcode, type);
     }
