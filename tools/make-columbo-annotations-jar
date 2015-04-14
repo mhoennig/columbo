@@ -1,0 +1,40 @@
+#!/bin/bash
+# Extracts a columbo-annotations-*.jar from a build.
+# Just a temporary solution until I switched to a multi module Maven project.
+
+cd target
+sourceJar=`ls -1 columbo-*.jar | grep -v javadoc | grep -v sources`
+targetJar=`echo $sourceJar |sed 's/columbo-/columbo-annotations-/'`
+targetDir=$(basename $targetJar .jar)
+
+mkdir $targetDir
+cd $targetDir
+
+unzip ../$sourceJar \
+	META-INF/MANIFEST.MF \
+	META-INF/maven/de.javagil/columbo/pom.xml \
+	META-INF/maven/de.javagil/columbo/pom.properties \
+	de/javagil/columbo/api/Internal.class \
+	de/javagil/columbo/api/Final.class
+
+# on windows -i causes 'permission denied' when trying to preserve the file attributes
+# Thus I use the following trick:
+
+sed -e 's/artifactId=columbo/artifactId=columbo-annotations/' \
+	META-INF/maven/de.javagil/columbo/pom.properties >META-INF/maven/de.javagil/columbo/.pom.properties
+cat META-INF/maven/de.javagil/columbo/.pom.properties >META-INF/maven/de.javagil/columbo/pom.properties
+rm META-INF/maven/de.javagil/columbo/.pom.properties
+
+sed -e 's/<artifactId>columbo/<artifactId>columbo-annotations/' \
+    -e 's/<name>columbo/<name>columbo-annotations/' \
+    META-INF/maven/de.javagil/columbo/pom.xml >META-INF/maven/de.javagil/columbo/.pom.xml
+cat META-INF/maven/de.javagil/columbo/.pom.xml >META-INF/maven/de.javagil/columbo/pom.xml
+rm META-INF/maven/de.javagil/columbo/.pom.xml
+
+# this is really a workaround, need to create multi module project soon
+"/c/Program Files/7-Zip/7z.exe" a -tzip ../$targetJar .
+
+cd ..
+rm -rf $targetDir
+
+
