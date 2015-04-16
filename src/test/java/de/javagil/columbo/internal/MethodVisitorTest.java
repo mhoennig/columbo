@@ -57,6 +57,7 @@ import de.javagil.columbo.api.VisitorContext;
  */
 public class MethodVisitorTest {
 
+	private static final String CONSTRUCTOR = "<init>";
 	private VisitorContext context = new VisitorContext();
 	private ReferenceVisitor refVisitor = new MyReferenceVisitor();
 	private MethodVisitor methodVisitor = new MethodVisitor(context, refVisitor);
@@ -114,7 +115,16 @@ public class MethodVisitorTest {
 				"java/lang/NonExistingClass", "someField", "Ljava/lang/String;");
 	}
 	
-
+	@Test
+	public final void visitMethodInsnProcessingConstructorCall() {
+		
+		givenWeAreInspectingMethod("someIntegerMethodTakingAString", "(Ljava/lang/String;)Ljava/lang/Integer;");
+		
+		whenFindingBytecodeForMethodInvokation(Opcode.INVOKESPECIAL, 
+				"java/lang/String", CONSTRUCTOR, "();");
+		
+		thenExpectToHaveFoundClassReferenceFrom("someIntegerMethodTakingAString", String.class);
+	}
 	
 	@Test
 	public final void visitMethodInsnProcessingVirtualMethodCall() {

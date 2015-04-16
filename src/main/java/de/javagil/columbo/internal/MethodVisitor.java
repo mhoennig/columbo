@@ -96,18 +96,15 @@ class MethodVisitor extends MethodAdapter {
 
 	private void onConstructorCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
 		final Constructor<?> constructor = findConstructor(BytecodeUtil.rawType(clazz), desc);
-		referenceVisitor.onConstructorCall(referrer, constructor);
-		
-		notifyParameterTypes(referrer, constructor.getParameterTypes());
+		if ( constructor != null ) {
+			referenceVisitor.onConstructorCall(referrer, constructor);
+			notifyParameterTypes(referrer, constructor.getParameterTypes());
+		}
 	}
 
 	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
 		final Method method = findMethod(BytecodeUtil.rawType(clazz), name, desc);
-		if (method == null) {
-			// TODO it's ugly to calculate paramTypes in findMethod as well as here
-			// needs refactoring and test coverage (this is just a hotfix)
-			referenceVisitor.onMethodNotFound(clazz, name, BytecodeUtil.determineParameterTypes(desc));
-		} else {
+		if (method != null) {
 			referenceVisitor.onMethodCall(referrer, method);
 			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(method.getReturnType()));
 			notifyParameterTypes(referrer, method.getParameterTypes());
@@ -116,9 +113,7 @@ class MethodVisitor extends MethodAdapter {
 
 	private void onFieldAccess(final Referrer referrer, final Class<?> clazz, final String name) {
 		final Field field = findField(BytecodeUtil.rawType(clazz), name);
-		if (field == null) {
-			referenceVisitor.onFieldNotFound(clazz, name);
-		} else {
+		if (field != null) {
 			referenceVisitor.onFieldAccess(referrer, field);
 			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(field.getType()));
 		}
