@@ -25,19 +25,15 @@
 */
 package de.javagil.columbo.api;
 
-import static org.junit.Assert.fail;
 import static de.javagil.columbo.internal.Util.areEqual;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import de.javagil.columbo.api.Referrer;
 import de.javagil.columbo.internal.ReferrerImpl;
 import de.javagil.columbo.testbed.constructor.SomeClassCallingConstructors;
 import de.javagil.columbo.testbed.constructor.SomeClassWithContructor;

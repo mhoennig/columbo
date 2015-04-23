@@ -28,8 +28,6 @@ package de.javagil.columbo.api;
 
 import java.lang.reflect.Method;
 
-import javax.annotation.Generated;
-
 import de.javagil.columbo.internal.BytecodeUtil;
 
 /**

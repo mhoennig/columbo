@@ -28,8 +28,6 @@ package de.javagil.columbo.api;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 /** Marks the annotated element as package-internal. A test can check if this access limitation is
  * violated.

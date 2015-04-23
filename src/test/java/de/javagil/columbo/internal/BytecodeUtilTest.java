@@ -52,8 +52,16 @@ public class BytecodeUtilTest {
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 	
+	// used by reflection for the test
+	@SuppressWarnings("unused")
 	private Integer someInt;
+	
+	// used by reflection for the test
+	@SuppressWarnings("unused")
 	private Integer someInteger;
+	
+	// used by reflection for the test
+	@SuppressWarnings("unused")
 	private Integer[] someIntegerArray;
 	
 	@Test
