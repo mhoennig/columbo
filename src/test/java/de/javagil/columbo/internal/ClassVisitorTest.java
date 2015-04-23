@@ -43,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import de.javagil.columbo.api.InspectionException;
 import de.javagil.columbo.api.ReferenceVisitor;
 import de.javagil.columbo.api.ReferenceVisitorAdapter;
 import de.javagil.columbo.api.Referrer;
@@ -171,6 +172,12 @@ public class ClassVisitorTest {
 		onMethodOverrideNotCalledForAnyOtherMethod();
 	}
 	
+	@Test
+	public final void visitMethoCallsOnClassNotFoundIfSomeParameterClassIsNotInClasspath() throws Throwable {
+		whenVisiting(SomeClientClass.class, "someMethodFromDirectInterface", "(I,Ldoes.NotExist;)I");
+		onClassNotFoundCalled("Ldoes.NotExist;");
+	}
+	
 	// --- end of test cases, just fixture code below ---
 
 	private void whenVisiting(Class<?> clazz, String methodName, String methodDesc) {
@@ -190,6 +197,12 @@ public class ClassVisitorTest {
 		Referrer expectedReferrer = ctx.toReferrer();
 		Method expectedMethod = clazz.getDeclaredMethod(methodName, paramTypes);
 		Mockito.verify(refVisitorMock, Mockito.never()).onMethodOverride(expectedReferrer, expectedMethod);
+	}
+
+	private void onClassNotFoundCalled(final String classDesc) throws Throwable {
+		Referrer expectedReferrer = ctx.toReferrer();
+		InspectionException expectedException = new InspectionException("could not determine class in type Ldoes.NotExist");
+		Mockito.verify(refVisitorMock).onClassNotFound(expectedReferrer, expectedException); 
 	}
 
 	private void onMethodOverrideNotCalledForAnyOtherMethod() throws SecurityException, NoSuchMethodException {

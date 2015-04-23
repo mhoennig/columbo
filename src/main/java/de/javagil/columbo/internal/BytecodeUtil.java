@@ -133,7 +133,11 @@ public final class BytecodeUtil {
 	        	return typeNameToClass(taggedTypeNameWithSlashes);
 	        }
 	   } catch (ClassNotFoundException exc) {
-		    throw new InspectionException("could not determine class in type " + taggedTypeNameWithSlashes, exc);
+		   // class itself was not found
+		   throw new InspectionException("could not determine class in type " + taggedTypeNameWithSlashes, exc);
+	   } catch (NoClassDefFoundError exc) {
+		   // an indirectly referred class was not found
+		   throw new InspectionException("could not determine class in type " + taggedTypeNameWithSlashes, exc);
 	   }
 	}
 

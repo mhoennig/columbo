@@ -42,13 +42,23 @@ public interface ReferenceVisitor {
 	 * @param referencedClass the class which was used in the given context
 	 */
 	void onClassReference(final Referrer referrer, final Class<?> referencedClass);
-	
+
+	/** Is called if in the process of determining what's referenced, a class could not be found
+	 *  which is used by the referenced Java element. This usually indicates an inconsistent or
+	 *  incomplete CLASSPATH, e.g. some jar was compiled against a different version of another jar
+	 *  as is now in the CLASSPATH.
+	 * 
+	 * @param referrer specifies where the reference class is used
+	 * @param cause the original exception
+	 */
+	void onClassNotFound(final Referrer referrer, final Throwable cause);
+
 	/** Is called if a method is overridden.
 	 * 
 	 * @param referrer specifies where the method is overridden
 	 * @param referencedMethod the method which was overridden in the given context
 	 */
-	void onMethodOverride(Referrer referrer, Method referencedMethod);
+	void onMethodOverride(final Referrer referrer, final Method referencedMethod);
 
 	/** Is called if a method call was found.
 	 * 
@@ -93,7 +103,7 @@ public interface ReferenceVisitor {
 	 * @param referrer specifies where the reference class is used
 	 * @param referencedField the method which was used in the given context
 	 */
-	void onFieldAccess(Referrer referrer, Field referencedField);
+	void onFieldAccess(final Referrer referrer, final Field referencedField);
 
 	
 	/** Is called if a field which is accessed was not found.
@@ -102,5 +112,5 @@ public interface ReferenceVisitor {
 	 * @param referrer specifies where the reference class is used
 	 * @param referencedField the name of the field which was used in the given context
 	 */
-	void onFieldNotFound(Class<?> referrer, String referencedField);
+	void onFieldNotFound(final Class<?> referrer, final String referencedField);
 }

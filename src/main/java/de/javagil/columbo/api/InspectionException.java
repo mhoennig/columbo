@@ -61,7 +61,7 @@ public class InspectionException extends RuntimeException {
 	 * @param message describes the exception
 	 * @param exc the original exception
 	 */
-	public InspectionException(final String message, final ClassNotFoundException exc) {
+	public InspectionException(final String message, final Throwable exc) {
 		super(message, exc);
 	}
 
@@ -141,5 +141,18 @@ public class InspectionException extends RuntimeException {
 			asString += BytecodeUtil.getJavaClassName(clazz) + ", ";
 		}
 		return asString.substring(0, asString.length() - 2) + ")";
+	}
+	
+	@Override
+	public boolean equals(final Object other) {
+		if (other != null && other.getClass() == getClass() ) {
+			return toString().equals(other.toString());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }

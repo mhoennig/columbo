@@ -44,6 +44,11 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 	}
 
 	@Override
+	public void onClassNotFound(final Referrer referrer, final Throwable cause) {
+		throw new InspectionException("most likely inconsistent CLASSPATH", cause);
+	}
+
+	@Override
 	public void onMethodOverride(final Referrer referrer, final Method referencedMethod) {
 	}
 
@@ -79,5 +84,4 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 		throw InspectionException.createFieldNotFoundException(clazz, name);
 	}
 	// CHECKSTYLE:ON
-
 }

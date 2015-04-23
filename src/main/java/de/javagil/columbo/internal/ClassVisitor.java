@@ -87,22 +87,28 @@ public class ClassVisitor extends ClassAdapter {
     	context.enteringMethod(name, desc);
     	Referrer referrer = context.toReferrer();
 
-		Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
-		for (Class<?> paramType: paramTypes) {
-			referenceVisitor.onClassReference(referrer, paramType);
-		}
-		
-		Method method = referrer.getJavaElement().getJavaMethod();
-		if ( method != null ) {
-			if ( method.getDeclaringClass().getSuperclass() != null ) {
-				checkMethodOverride(referrer, method.getDeclaringClass().getSuperclass(), method);
+    	try {
+			Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+			for (Class<?> paramType: paramTypes) {
+				referenceVisitor.onClassReference(referrer, paramType);
 			}
-			for ( Class<?> implementedInterface: method.getDeclaringClass().getInterfaces() ) {
-				checkMethodOverride(referrer, implementedInterface, method);
+			
+			Method method = referrer.getJavaElement().getJavaMethod();
+			if ( method != null ) {
+				if ( method.getDeclaringClass().getSuperclass() != null ) {
+					checkMethodOverride(referrer, method.getDeclaringClass().getSuperclass(), method);
+				}
+				for ( Class<?> implementedInterface: method.getDeclaringClass().getInterfaces() ) {
+					checkMethodOverride(referrer, implementedInterface, method);
+				}
 			}
-		}
-        
-        return mv;
+	        
+	        return mv;
+    	} catch ( InspectionException exc ) {
+    		referenceVisitor.onClassNotFound(referrer, exc);
+    	}
+    	
+    	return mv;
     }
 
     private void checkMethodOverride(Referrer referrer, Class<?> declaringClass, Method method) {
