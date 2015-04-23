@@ -204,7 +204,6 @@ public final class BytecodeUtil {
     			if (clazz.getSuperclass() != null) {
     				return findMethod(clazz.getSuperclass(), name, paramTypes);
     			}
-    			
     			return null;
     		}
     	}

@@ -64,6 +64,9 @@ class MethodVisitor extends MethodAdapter {
     	Referrer referrer = context.toReferrer();
     	
     	Class<?> clazz = BytecodeUtil.taggedTypeNameToClass(owner);
+		if ( isPseudoClass(clazz) ) {
+			return;
+		}
     	referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(clazz));
 
         if (opcode == Opcode.INVOKESPECIAL && isConstructor(name)) {
@@ -123,6 +126,11 @@ class MethodVisitor extends MethodAdapter {
 	    for (Class<?> paramType: parameterTypes) {
 	    	referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(paramType));
 	    }
+	}
+
+	private boolean isPseudoClass(Class<?> clazz) {
+		// these classes do not have methods which can be retrieved by reflection, e.g. clone
+		return clazz == byte.class || clazz == byte[].class;
 	}
 
     Constructor<?> findConstructor(final Class<?> clazz, final String desc) {

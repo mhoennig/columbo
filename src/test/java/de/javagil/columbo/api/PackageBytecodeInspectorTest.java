@@ -26,6 +26,7 @@
 package de.javagil.columbo.api;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -59,6 +60,8 @@ public class PackageBytecodeInspectorTest {
 				de.javagil.columbo.testbed.general.SomeAnnotation.class.getCanonicalName());
 		assertThat(referenceVisitor.referencedClasses).containsOnly(
 				int.class, 
+				byte.class,
+				byte[].class,
 				java.lang.Object.class, // for the superclass constructor call
 				java.lang.Integer.class,
 				java.lang.String.class,
@@ -68,6 +71,12 @@ public class PackageBytecodeInspectorTest {
 				SomeCleanClass.class, // self reference from it's own init-code
 				SomeTestClass.class); // self reference from it's own init-code  
 
+	}
+	
+	@Test
+	public void byteTest() {
+		assertNotSame(byte[].class, byte.class);
+		assertNotEquals(byte[].class.toString(), byte.class.toString());
 	}
 }
 

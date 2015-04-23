@@ -36,7 +36,8 @@ package de.javagil.columbo.testbed.general.good;
 //- changing line number will make tests fail => amend tests
 public class SomeCleanClass {
 
-	private String something = "<init>";
+	String something = "<init>";
+	byte[] bytes = null;
 
 	public final String getSomething() {
 		 return something;
@@ -45,5 +46,9 @@ public class SomeCleanClass {
 
 	public final void setSomething(final String something) {
 		 this.something = something;
+	}
+	
+	public final void setBytes(final byte[] something) {
+		 this.bytes = something.clone();
 	}
 }
