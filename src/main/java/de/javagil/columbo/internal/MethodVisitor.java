@@ -98,7 +98,7 @@ class MethodVisitor extends MethodAdapter {
 	}
 
 	private void onConstructorCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
-		final Constructor<?> constructor = findConstructor(BytecodeUtil.rawType(clazz), desc);
+		final Constructor<?> constructor = findConstructor(referrer, BytecodeUtil.rawType(clazz), desc);
 		if ( constructor != null ) {
 			referenceVisitor.onConstructorCall(referrer, constructor);
 			notifyParameterTypes(referrer, constructor.getParameterTypes());
@@ -106,7 +106,7 @@ class MethodVisitor extends MethodAdapter {
 	}
 
 	private void onMethodCall(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
-		final Method method = findMethod(BytecodeUtil.rawType(clazz), name, desc);
+		final Method method = findMethod(referrer, BytecodeUtil.rawType(clazz), name, desc);
 		if (method != null) {
 			referenceVisitor.onMethodCall(referrer, method);
 			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(method.getReturnType()));
@@ -115,8 +115,8 @@ class MethodVisitor extends MethodAdapter {
 	}
 
 	private void onFieldAccess(final Referrer referrer, final Class<?> clazz, final String name) {
-		final Field field = findField(BytecodeUtil.rawType(clazz), name);
-		if (field != null) {
+		final Field field = findField(referrer, clazz, name);
+		if ( field != null ) {
 			referenceVisitor.onFieldAccess(referrer, field);
 			referenceVisitor.onClassReference(referrer, BytecodeUtil.rawType(field.getType()));
 		}
@@ -128,37 +128,50 @@ class MethodVisitor extends MethodAdapter {
 	    }
 	}
 
-    Constructor<?> findConstructor(final Class<?> clazz, final String desc) {
-		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
-		final Constructor<?> constructor = BytecodeUtil.findConstructor(clazz, paramTypes);
-		if (constructor == null) {
-			// might throw {@link InspectorException}, but not necessarily
-			referenceVisitor.onConstructorNotFound(clazz, paramTypes);
-		} 
-		return constructor;
-	}
-
-
-	Method findMethod(final Class<?> clazz, final String name, final String desc) {
-
-		final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
-		final Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
-		if (method == null) {
-			// might throw {@link InspectorException}, but not necessarily
-			referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
+    Constructor<?> findConstructor(final Referrer referrer, final Class<?> clazz, final String desc) {
+    	try { 
+			final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+			final Constructor<?> constructor = BytecodeUtil.findConstructor(clazz, paramTypes);
+			if (constructor == null) {
+				// might throw {@link InspectorException}, but not necessarily
+				referenceVisitor.onConstructorNotFound(clazz, paramTypes);
+			} 
+			return constructor;
+    	} catch (NoClassDefFoundError exc) {
+			referenceVisitor.onClassNotFound(referrer, exc);
 		}
-		return method;
+		return null;
 	}
 
-	Field findField(final Class<?> clazz, final String name) {
-		final Field field = BytecodeUtil.findField(clazz, name);
-		if (field == null) {
-			// might throw {@link InspectorException}, but not necessarily
-			referenceVisitor.onFieldNotFound(clazz, name);
+    Field findField(final Referrer referrer, Class<?> clazz, String name) {
+		try { 
+			Field field = BytecodeUtil.findField(clazz, name);
+			if (field == null) {
+				// might throw {@link InspectorException}, but not necessarily
+				referenceVisitor.onFieldNotFound(clazz, name);
+			}
+			return field;
+		} catch (NoClassDefFoundError exc) {
+			referenceVisitor.onClassNotFound(referrer, exc);
 		}
-		return field;
-	}
+		return null;
+    }
 
+	Method findMethod(final Referrer referrer, final Class<?> clazz, final String name, final String desc) {
+		try {
+			final Class<?>[] paramTypes = BytecodeUtil.determineParameterTypes(desc);
+			final Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
+			if (method == null) {
+				// might throw {@link InspectorException}, but not necessarily
+				referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
+			}
+			return method;
+		} catch (NoClassDefFoundError exc) {
+			referenceVisitor.onClassNotFound(referrer, exc);
+		}
+		return null;
+	}
+	
 	@Override
 	public void visitTypeInsn(final int opcode, final String type) {
 		if (opcode == Opcode.NEW || opcode == Opcode.INSTANCEOF) {

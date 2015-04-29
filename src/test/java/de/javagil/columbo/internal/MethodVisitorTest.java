@@ -27,6 +27,7 @@ package de.javagil.columbo.internal;
 
 import static de.javagil.columbo.internal.Util.withDefault;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
@@ -39,10 +40,12 @@ import java.util.Set;
 import javassist.bytecode.Opcode;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import de.javagil.columbo.api.InspectionException;
 import de.javagil.columbo.api.ReferenceVisitor;
@@ -59,13 +62,18 @@ public class MethodVisitorTest {
 
 	private static final String CONSTRUCTOR = "<init>";
 	private VisitorContext context = new VisitorContext();
-	private ReferenceVisitor refVisitor = new MyReferenceVisitor();
+	private MyReferenceVisitor refVisitor = new MyReferenceVisitor();
 	private MethodVisitor methodVisitor = new MethodVisitor(context, refVisitor);
 
+	private MultiValueMap notFoundClassReferences =  MultiValueMap.decorate(new HashMap<Referrer, Throwable>());
+	private MultiValueMap notFoundMethods =  MultiValueMap.decorate(new HashMap<String, Class<?>[]>());
+	private MultiValueMap notFoundFields =  MultiValueMap.decorate(new HashMap<Class<?>, String>());
 	private MultiValueMap foundClassReferences =  MultiValueMap.decorate(new HashMap<Referrer, Class<?>>());
 	private Map<Referrer, Method> foundMethodReferences =  new HashMap<Referrer, Method>();
 	private Map<Referrer, Field> foundFieldReferences =  new HashMap<Referrer, Field>();
-	
+
+	private Referrer referrerFake = Mockito.mock(Referrer.class);
+
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
@@ -165,7 +173,23 @@ public class MethodVisitorTest {
 	public final void findMethodTest() throws NoSuchMethodException, SecurityException {
 		assertEquals(
 				org.junit.Assert.class.getMethod("assertEquals", array(String.class, long.class, long.class)),
-				methodVisitor.findMethod(org.junit.Assert.class, "assertEquals", "((Ljava/lang/String;JJ)V))"));
+				methodVisitor.findMethod(referrerFake, org.junit.Assert.class, "assertEquals", "((Ljava/lang/String;JJ)V))"));
+		assertEquals(0, notFoundClassReferences.size());
+
+		refVisitor.callSuperIfElementNotFound = false;
+		methodVisitor.findMethod(referrerFake, org.junit.Assert.class, "nonExistingMethod", "()V");
+		thenExpectToNotHaveFoundMethod(org.junit.Assert.class, "nonExistingMethod", "()V");
+	}
+	
+	@Test
+	public final void findFieldTest() throws NoSuchFieldException, SecurityException {
+		assertEquals(
+				SomeClass.class.getDeclaredField("someField"),
+				methodVisitor.findField(referrerFake, SomeClass.class, "someField"));
+
+		refVisitor.callSuperIfElementNotFound = false;
+		methodVisitor.findField(referrerFake, org.junit.Assert.class, "nonExistingField");
+		thenExpectToNotHaveFoundField(org.junit.Assert.class, "nonExistingField");
 	}
 	
 	@Test
@@ -204,6 +228,18 @@ public class MethodVisitorTest {
 	private void thenExpectException(final Class<InspectionException> expectedExc, final String expectedMessage) {
 		expectedException.expect(expectedExc);
 		expectedException.expectMessage(expectedMessage);
+	}
+
+	private void thenExpectToNotHaveFoundMethod(final Class<Assert> clazz, final String name, final String params) {
+		// for now a simplified implementation
+		assertNotNull( notFoundMethods.get(name) );
+		assertEquals(1, notFoundMethods.size());
+	}
+
+	private void thenExpectToNotHaveFoundField(final Class<Assert> clazz, final String name) {
+		// for now a simplified implementation
+		assertNotNull( notFoundFields.get(clazz) );
+		assertEquals(1, notFoundFields.size());
 	}
 
 	private void givenWeAreInspectingMethod(final String methodName, final String methodDesc) {
@@ -261,20 +297,58 @@ public class MethodVisitorTest {
 	/** Is called for each found reference.
 	 */
 	class MyReferenceVisitor extends ReferenceVisitorAdapter {
+		
+		boolean callSuperIfElementNotFound = true;
 
+		@Override
+		public void onClassNotFound(final Referrer referrer, final Throwable cause) {
+			if ( callSuperIfElementNotFound ) {
+				super.onClassNotFound(referrer, cause);
+			} else {
+				notFoundClassReferences.put(referrer, cause);
+			}
+		}
+		
 		@Override
 		public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
 			foundClassReferences.put(referrer, referencedClass);
 		}
 
 		@Override
+		public void onMethodNotFound(final Class<?> clazz, String name, final Class<?>[] paramTypes) {
+			if ( callSuperIfElementNotFound ) {
+				super.onMethodNotFound(clazz, name, paramTypes);
+			} else {
+				// will make more sense when the referrer is passed in version 0.2
+				notFoundMethods.put(name, paramTypes);
+			}
+		}
+		
+		@Override
 		public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 			foundMethodReferences.put(referrer, referencedMethod);
 		}
 		
 		@Override
-		public void onFieldAccess(Referrer referrer, Field referencedField) {
+		public void onFieldNotFound(final Class<?> clazz, final String name) {
+			if ( callSuperIfElementNotFound ) {
+				super.onFieldNotFound(clazz, name);
+			} else {
+				// will make more sense when the referrer is passed in version 0.2
+				notFoundFields.put(clazz, name);
+			}
+		}
+		
+		@Override
+		public void onFieldAccess(final Referrer referrer, final Field referencedField) {
 			foundFieldReferences.put(referrer, referencedField);
 		}
+	}
+	
+	/**
+	 * Just a candidate for the tests.
+	 */
+	class SomeClass {
+		Object someField;
 	}
 }
