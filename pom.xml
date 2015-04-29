@@ -4,7 +4,7 @@
   <groupId>de.javagil</groupId>
   <artifactId>columbo</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.6</version>
+  <version>0.1.7</version>
   <name>columbo</name>
   <description>A library to find references to specific classes and methods in the classpath.</description>
   <url>http://maven.apache.org</url>
