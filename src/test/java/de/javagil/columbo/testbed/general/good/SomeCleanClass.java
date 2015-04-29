@@ -33,16 +33,17 @@ package de.javagil.columbo.testbed.general.good;
  *
  */
 //ATTENTION: 
-//- changing line number will make tests fail => amend tests
+//- changing line number might make tests fail => amend line numbers related tests
 public class SomeCleanClass {
 
 	String something = "<init>";
 	byte[] bytes = null;
+	int[] ints = null;
+	Integer[] integers = null;
 
 	public final String getSomething() {
 		 return something;
 	}
-
 
 	public final void setSomething(final String something) {
 		 this.something = something;
@@ -50,5 +51,13 @@ public class SomeCleanClass {
 	
 	public final void setBytes(final byte[] something) {
 		 this.bytes = something.clone();
+	}
+	
+	public final void setIntegers(final Integer[] something) {
+		 this.integers = something.clone();
+	}
+	
+	public final void setInts(final int[] something) {
+		 this.ints = something.clone();
 	}
 }

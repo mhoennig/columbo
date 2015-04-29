@@ -33,6 +33,7 @@ import static org.junit.Assert.assertSame;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,6 +65,10 @@ public class BytecodeUtilTest {
 	@SuppressWarnings("unused")
 	private Integer[] someIntegerArray;
 	
+	// used by reflection for the test
+	@SuppressWarnings("unused")
+	private List<Integer> someGenericList;
+	
 	@Test
 	public final void utilityClassTest() throws Exception {
 		assertThat(BytecodeUtil.class).isUtilityClass();
@@ -86,6 +91,7 @@ public class BytecodeUtilTest {
 	@Test
 	public final void taggedTypeNameToClassTest() {
 		assertSame(int.class, BytecodeUtil.taggedTypeNameToClass("I"));
+		assertSame(byte[].class, BytecodeUtil.taggedTypeNameToClass("[B"));
 		assertSame(java.lang.Object.class, BytecodeUtil.taggedTypeNameToClass("Ljava/lang/Object;"));
 		assertSame(java.lang.Object[].class, BytecodeUtil.taggedTypeNameToClass("[Ljava/lang/Object"));
 	}
@@ -145,7 +151,8 @@ public class BytecodeUtilTest {
 	
 	@Test
 	public final void rawTypeTest() {
-		assertEquals(Integer.class, BytecodeUtil.rawType(typeOfField("someIntegerArray")));
+		assertEquals(List.class, BytecodeUtil.rawType(typeOfField("someGenericList")));
+		assertEquals(Integer[].class, BytecodeUtil.rawType(typeOfField("someIntegerArray")));
 	}
 
 	private Class<?> typeOfField(String fieldName) {

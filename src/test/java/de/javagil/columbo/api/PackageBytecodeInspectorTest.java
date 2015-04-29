@@ -59,11 +59,10 @@ public class PackageBytecodeInspectorTest {
 				de.javagil.columbo.testbed.general.good.SomeCleanClass.class.getCanonicalName(),
 				de.javagil.columbo.testbed.general.SomeAnnotation.class.getCanonicalName());
 		assertThat(referenceVisitor.referencedClasses).containsOnly(
-				int.class, 
-				byte.class,
+				int.class, int[].class, 
 				byte[].class,
 				java.lang.Object.class, // for the superclass constructor call
-				java.lang.Integer.class,
+				java.lang.Integer.class, java.lang.Integer[].class,
 				java.lang.String.class,
 				java.lang.annotation.Retention.class, // annotation of @SomeTestAnnotation
 				java.lang.annotation.Annotation.class, // super of @SomeTestAnnotation

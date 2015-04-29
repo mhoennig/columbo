@@ -254,10 +254,11 @@ public final class BytecodeUtil {
 	 * @return the raw type (removing array and generic part)
 	 */
 	public static Class<?> rawType(final Class<?> type) {
-    	if (!type.isArray()) {
-    		return type;
-    	}
-    	return rawType(type.getComponentType());
+//    	if (!type.isArray()) {
+//    		return type;
+//    	}
+    	// return rawType(type.getComponentType());
+		return type;
 	}
 
 	
