@@ -134,7 +134,7 @@ class MethodVisitor extends MethodAdapter {
 			final Constructor<?> constructor = BytecodeUtil.findConstructor(clazz, paramTypes);
 			if (constructor == null) {
 				// might throw {@link InspectorException}, but not necessarily
-				referenceVisitor.onConstructorNotFound(clazz, paramTypes);
+				referenceVisitor.onConstructorNotFound(referrer, clazz, paramTypes);
 			} 
 			return constructor;
     	} catch (NoClassDefFoundError exc) {
@@ -148,7 +148,7 @@ class MethodVisitor extends MethodAdapter {
 			Field field = BytecodeUtil.findField(clazz, name);
 			if (field == null) {
 				// might throw {@link InspectorException}, but not necessarily
-				referenceVisitor.onFieldNotFound(clazz, name);
+				referenceVisitor.onFieldNotFound(referrer, clazz, name);
 			}
 			return field;
 		} catch (NoClassDefFoundError exc) {
@@ -163,7 +163,7 @@ class MethodVisitor extends MethodAdapter {
 			final Method method = BytecodeUtil.findMethod(clazz, name, paramTypes);
 			if (method == null) {
 				// might throw {@link InspectorException}, but not necessarily
-				referenceVisitor.onMethodNotFound(clazz, name, paramTypes);
+				referenceVisitor.onMethodNotFound(referrer, clazz, name, paramTypes);
 			}
 			return method;
 		} catch (NoClassDefFoundError exc) {

@@ -73,11 +73,12 @@ public interface ReferenceVisitor {
 	 * is not in the CLASSPATH in multiple incompatible version.
 	 * <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
+	 * @param referrer specifies where the reference class is used
 	 * @param clazz the class of the instance of which a method was called
 	 * @param name name of the called method
 	 * @param paramTypes parameter types of the called method
 	 */
-	void onMethodNotFound(final Class<?> clazz, String name, final Class<?>[] paramTypes);
+	void onMethodNotFound(final Referrer referrer, final Class<?> clazz, String name, final Class<?>[] paramTypes);
 
 	/**
 	 * Is called when a constructor invocation was determined.
@@ -93,10 +94,11 @@ public interface ReferenceVisitor {
 	 * is not in the CLASSPATH in multiple incompatible version.
 	 * <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
+	 * @param referrer specifies where the reference class is used
 	 * @param clazz the class for which an initialization call was found
 	 * @param paramTypes parameter types of the called constructor
 	 */
-	void onConstructorNotFound(final Class<?> clazz, final Class<?>[] paramTypes);
+	void onConstructorNotFound(final Referrer referrer, final Class<?> clazz, final Class<?>[] paramTypes);
 
 	/** Is called if a field access was found.
 	 * 
@@ -110,7 +112,8 @@ public interface ReferenceVisitor {
 	 *  <p>This usually indicates a CLASSPATH inconsistency.</p> 
 	 * 
 	 * @param referrer specifies where the reference class is used
+	 * @param clazz the class of the field which was not found
 	 * @param referencedField the name of the field which was used in the given context
 	 */
-	void onFieldNotFound(final Class<?> referrer, final String referencedField);
+	void onFieldNotFound(Referrer referrer, final Class<?> clazz, final String referencedField);
 }

@@ -30,7 +30,9 @@ import static org.junit.Assert.assertSame;
 
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import de.javagil.columbo.api.InspectionException;
 
@@ -40,6 +42,13 @@ import de.javagil.columbo.api.InspectionException;
  * @author michael.hoennig@javagil.de
  */
 public class InspectionExceptionTest {
+	
+	Referrer fakeReferrer = Mockito.mock(Referrer.class);
+	
+	@Before
+	public final void initMocks() {
+		Mockito.when(fakeReferrer.toContentString()).thenReturn("fakeReferrer");
+	}
 
 	@Test
 	public final void constructorUsingMessageString() {
@@ -78,21 +87,27 @@ public class InspectionExceptionTest {
 	}
 	
 	@Test
-	public final void createMethodNotFoundException() {
-		InspectionException exception = InspectionException.createMethodNotFoundException(java.lang.String.class, 
-				"someMethod", new Class<?>[]{ java.lang.String.class, int[].class, boolean.class});
+	public final void createClassNotFoundException() {
+		InspectionException exception = InspectionException.createClassNotFoundException(fakeReferrer, new NoClassDefFoundError("de/javagil/columbo/test/NotExistingClass"));
 		assertSame(InspectionException.class, exception.getClass());
-		assertEquals("no method found for java.lang.String#someMethod(java.lang.String, int[], boolean)", 
+		assertEquals("fakeReferrer uses non existing class: de/javagil/columbo/test/NotExistingClass - most likely inconsistent CLASSPATH (some class compiled against a class incompatible to what's now in CLASSPATH)", 
 					exception.getMessage());
 	}
-
+	@Test
+	public final void createMethodNotFoundException() {
+		InspectionException exception = InspectionException.createMethodNotFoundException(fakeReferrer, java.lang.String.class, 
+				"someMethod", new Class<?>[]{ java.lang.String.class, int[].class, boolean.class});
+		assertSame(InspectionException.class, exception.getClass());
+		assertEquals("fakeReferrer uses non existing method: java.lang.String#someMethod(java.lang.String, int[], boolean) - most likely inconsistent CLASSPATH (some class compiled against a class incompatible to what's now in CLASSPATH)", 
+					exception.getMessage());
+	}
 	
 	@Test
 	public final void createConstructorNotFoundException() {
-		InspectionException exception = InspectionException.createConstructorNotFoundException(java.lang.String.class, 
+		InspectionException exception = InspectionException.createConstructorNotFoundException(fakeReferrer, java.lang.String.class, 
 				new Class<?>[]{ char[].class});
 		assertSame(InspectionException.class, exception.getClass());
-		assertEquals("no constructor found for java.lang.String(char[])", 
+		assertEquals("fakeReferrer uses non existing constructor: java.lang.String(char[]) - most likely inconsistent CLASSPATH (some class compiled against a class incompatible to what's now in CLASSPATH)", 
 					exception.getMessage());
 	}
 }

@@ -48,7 +48,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import de.javagil.columbo.api.InspectionException;
-import de.javagil.columbo.api.ReferenceVisitor;
 import de.javagil.columbo.api.ReferenceVisitorAdapter;
 import de.javagil.columbo.api.Referrer;
 import de.javagil.columbo.api.VisitorContext;
@@ -105,7 +104,7 @@ public class MethodVisitorTest {
 		givenWeAreInspectingMethod("someIntegerMethodTakingAString", "(Ljava/lang/String;)Ljava/lang/Integer;");
 		
 		thenExpectException(InspectionException.class, 
-				 "no field found for java.lang.Integer#nonExistantField");
+				"de.javagil.bytecodeinspector.test.SomeMethodVistorTestClassToBeInspected#someIntegerMethodTakingAString uses non existing field: java.lang.Integer#nonExistantField - most likely inconsistent CLASSPATH");
 
 		whenFindingBytecodeForFieldAccess(Opcode.PUTFIELD, 
 				"java/lang/Integer", "nonExistantField", "Ljava/lang/String;");
@@ -151,7 +150,7 @@ public class MethodVisitorTest {
 		givenWeAreInspectingMethod("someIntegerMethodTakingAString", "(Ljava/lang/String;)Ljava/lang/Integer;");
 		
 		thenExpectException(InspectionException.class, 
-				 "no method found for java.lang.Integer#nonExistantMethod()");
+				"de.javagil.bytecodeinspector.test.SomeMethodVistorTestClassToBeInspected#someIntegerMethodTakingAString uses non existing method: java.lang.Integer#nonExistantMethod() - most likely inconsistent CLASSPATH");
 		
 		whenFindingBytecodeForMethodInvokation(Opcode.INVOKEVIRTUAL, 
 				"java/lang/Integer", "nonExistantMethod", "()Ljava/lang/String;");
@@ -315,9 +314,9 @@ public class MethodVisitorTest {
 		}
 
 		@Override
-		public void onMethodNotFound(final Class<?> clazz, String name, final Class<?>[] paramTypes) {
+		public void onMethodNotFound(final Referrer referrer, final Class<?> clazz, String name, final Class<?>[] paramTypes) {
 			if ( callSuperIfElementNotFound ) {
-				super.onMethodNotFound(clazz, name, paramTypes);
+				super.onMethodNotFound(referrer, clazz, name, paramTypes);
 			} else {
 				// will make more sense when the referrer is passed in version 0.2
 				notFoundMethods.put(name, paramTypes);
@@ -330,9 +329,9 @@ public class MethodVisitorTest {
 		}
 		
 		@Override
-		public void onFieldNotFound(final Class<?> clazz, final String name) {
+		public void onFieldNotFound(final Referrer referrer, final Class<?> clazz, final String name) {
 			if ( callSuperIfElementNotFound ) {
-				super.onFieldNotFound(clazz, name);
+				super.onFieldNotFound(referrer, clazz, name);
 			} else {
 				// will make more sense when the referrer is passed in version 0.2
 				notFoundFields.put(clazz, name);

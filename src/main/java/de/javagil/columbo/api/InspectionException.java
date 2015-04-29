@@ -36,6 +36,8 @@ import de.javagil.columbo.internal.BytecodeUtil;
 public class InspectionException extends RuntimeException {
 
 	private static final long serialVersionUID = 7452661942714571624L;
+	
+	private static final String PROBABLY_INCONSISTENT_CLASSPATH = " - most likely inconsistent CLASSPATH (some class compiled against a class incompatible to what's now in CLASSPATH)";
 
 	/**
 	 * Creates an instance based on an original (mostly non Runtime-) exception
@@ -80,55 +82,75 @@ public class InspectionException extends RuntimeException {
 		}
 	}
 
+
 	/**
-	 * Creates an {@link InspectionException} for a method which was not found.
-	 * In this case the version of the target class in the CLASSPATH is
+	 * Creates an {@link InspectionException} for a class which was not found.
+	 * In this case the version of the target class in the CLASSPATH is most likely
 	 * incompatible to the version from compile time. 
 	 * 
+	 * @param referrer client code which refers to the element not found 
+	 * @param clazz the class on which a method was called
+	 * @param cause NoClassDefFoundError or ClassNotFoundException
+	 * @return an {@link InspectionException}
+	 */
+	public static InspectionException createClassNotFoundException(final Referrer referrer, final Throwable cause) {
+		assert cause != null : "cuase must not be null";
+		
+		return new InspectionException(referrer.toContentString() + " uses non existing class: " + cause.getMessage() + PROBABLY_INCONSISTENT_CLASSPATH);
+	}
+
+	/**
+	 * Creates an {@link InspectionException} for a method which was not found.
+	 * In this case the version of the target class in the CLASSPATH is most likely
+	 * incompatible to the version from compile time. 
+	 *
+	 * @param referrer client code which refers to the element not found 
 	 * @param clazz the class on which a method was called
 	 * @param name the name of the method
 	 * @param paramTypes the parameter types
 	 * @return an {@link InspectionException}
 	 */
 	public static InspectionException createMethodNotFoundException(
-				final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+				Referrer referrer, final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
 		assert clazz != null : "class must not be null";
 		assert name != null : "name must not be null";
 		
-		return new InspectionException("no method found for " + clazz.getName() + "#" + name + 
-					asString(paramTypes));
+		return new InspectionException(referrer.toContentString() + " uses non existing method: " + clazz.getName() + "#" + name + 
+					asString(paramTypes) + PROBABLY_INCONSISTENT_CLASSPATH);
 	}
 
 	/**
 	 * Creates an {@link InspectionException} for a constructor which was not found.
-	 * In this case the version of the target class in the CLASSPATH is
+	 * In this case the version of the target class in the CLASSPATH is most likely
 	 * incompatible to the version from compile time. 
 	 * 
+	 * @param referrer client code which refers to the element not found 
 	 * @param clazz the class on which a constructor was invoked
 	 * @param paramTypes the parameter types
 	 * @return an {@link InspectionException}
 	 */
-	public static InspectionException createConstructorNotFoundException(final Class<?> clazz, final Class<?>[] paramTypes) {
+	public static InspectionException createConstructorNotFoundException(Referrer referrer, final Class<?> clazz, final Class<?>[] paramTypes) {
 		assert clazz != null : "class must not be null";
 		
-		return new InspectionException("no constructor found for " + clazz.getName() +
-					asString(paramTypes));	
+		return new InspectionException(referrer.toContentString() + " uses non existing constructor: " + clazz.getName() +
+					asString(paramTypes) + PROBABLY_INCONSISTENT_CLASSPATH);	
 	}
 
 	/**
 	 * Creates an {@link InspectionException} for a field which was not found.
-	 * In this case the version of the target class in the CLASSPATH is
+	 * In this case the version of the target class in the CLASSPATH is most likely
 	 * incompatible to the version from compile time. 
 	 * 
+	 * @param referrer client code which refers to the element not found 
 	 * @param clazz the class on which a method was called
 	 * @param name the name of the method
 	 * @return an {@link InspectionException}
 	 */
-	public static InspectionException createFieldNotFoundException(Class<?> clazz, String name) {
+	public static InspectionException createFieldNotFoundException(Referrer referrer, Class<?> clazz, String name) {
 		assert clazz != null : "class must not be null";
 		assert name != null : "name must not be null";
 		
-		return new InspectionException("no field found for " + clazz.getName() + "#" + name);
+		return new InspectionException(referrer.toContentString() + " uses non existing field: " + clazz.getName() + "#" + name + PROBABLY_INCONSISTENT_CLASSPATH);
 	}
 	
 	private static String asString(final Class<?>[] paramTypes) {

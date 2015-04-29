@@ -27,6 +27,7 @@
 package de.javagil.columbo.api;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import de.javagil.columbo.api.ReferenceVisitorAdapter;
 
@@ -39,6 +40,7 @@ import de.javagil.columbo.api.ReferenceVisitorAdapter;
 public class ReferenceVisitorAdapterTest {
 
 	private ReferenceVisitor adapter = new ReferenceVisitorAdapter();
+	private Referrer fakeReferrer = Mockito.mock(Referrer.class);
 
 	@Test
 	public final void atLeastNoExceptionIsThrownByEmptyImplementations() {
@@ -49,12 +51,12 @@ public class ReferenceVisitorAdapterTest {
 
 	@Test(expected = InspectionException.class)
 	public final void onMethodNotFoundThrowsException() {
-		adapter.onMethodNotFound(Void.class, "<no method>", null);
+		adapter.onMethodNotFound(fakeReferrer, Void.class, "<no method>", null);
 	}
 
 
 	@Test(expected = InspectionException.class)
 	public final void onConstructorNotFound() {
-		adapter.onConstructorNotFound(Void.class, null);
+		adapter.onConstructorNotFound(fakeReferrer, Void.class, null);
 	}
 }

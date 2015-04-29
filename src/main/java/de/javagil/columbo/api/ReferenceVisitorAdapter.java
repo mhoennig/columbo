@@ -45,7 +45,7 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 
 	@Override
 	public void onClassNotFound(final Referrer referrer, final Throwable cause) {
-		throw new InspectionException("most likely inconsistent CLASSPATH", cause);
+		throw InspectionException.createClassNotFoundException(referrer, cause);
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 
 	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
 	@Override
-	public void onMethodNotFound(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-		throw InspectionException.createMethodNotFoundException(clazz, name, paramTypes);
+	public void onMethodNotFound(final Referrer referrer, final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+		throw InspectionException.createMethodNotFoundException(referrer, clazz, name, paramTypes);
 	}
 	// CHECKSTYLE:ON
 
@@ -69,19 +69,19 @@ public class ReferenceVisitorAdapter implements ReferenceVisitor {
 
 	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
 	@Override
-	public void onConstructorNotFound(final Class<?> clazz, final Class<?>[] paramTypes) {
-		throw InspectionException.createConstructorNotFoundException(clazz, paramTypes);
+	public void onConstructorNotFound(final Referrer referrer, final Class<?> clazz, final Class<?>[] paramTypes) {
+		throw InspectionException.createConstructorNotFoundException(referrer, clazz, paramTypes);
 	}
 	// CHECKSTYLE:ON
 
 	@Override
-	public void onFieldAccess(Referrer referrer, Field referencedField) {
+	public void onFieldAccess(final Referrer referrer, final Field referencedField) {
 	}
 
 	// CHECKSTYLE:OFF DesignForExtension the exception is not needed when method is overridden
 	@Override
-	public void onFieldNotFound(final Class<?> clazz, final String name) {
-		throw InspectionException.createFieldNotFoundException(clazz, name);
+	public void onFieldNotFound(final Referrer referrer, final Class<?> clazz, final String name) {
+		throw InspectionException.createFieldNotFoundException(referrer, clazz, name);
 	}
 	// CHECKSTYLE:ON
 }
