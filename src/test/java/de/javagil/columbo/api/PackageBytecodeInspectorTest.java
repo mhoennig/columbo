@@ -28,7 +28,10 @@ package de.javagil.columbo.api;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +80,43 @@ public class PackageBytecodeInspectorTest {
 		assertNotSame(byte[].class, byte.class);
 		assertNotEquals(byte[].class.toString(), byte.class.toString());
 	}
+	
+	@Test
+	public void anonymousClassTest() throws ClassNotFoundException {
+		final MyReferenceVisitor referenceVisitor = new MyReferenceVisitor();
+		PackageBytecodeInspector inspector = new PackageBytecodeInspector("de.javagil.columbo.testbed.anonymous");
+		inspector.inspect(referenceVisitor);
+
+		assertThat(referenceVisitor.refererClasses).containsOnly(
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class.getName(),
+
+				// refers java.lang.Object as superclass, as such it appears here:
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.ClassToSubclass.class.getName(),
+				
+				// does not refer anything by by itself, therefore does not appear here
+				// de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.InterfaceToSubclass.class.getName(),
+				
+				anon(de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class, 1).getName(),
+				anon(de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class, 2).getName());
+		assertThat(referenceVisitor.referencedClasses).containsOnly(
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class,
+				anon(de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class, 1),
+				anon(de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.class, 2),
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.ClassToSubclass.class,
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.InterfaceToSubclass.class,
+				Color.class, Object.class, void.class);
+		assertThat(referenceVisitor.referencedFields).containsOnly(
+				"anonExtendingAClass", "anonImplementingAnInterface", "this$0", "RED", "GREEN");
+		
+		// FIXME: overrides in anonymous classes are not yet recognized
+		assertThat(referenceVisitor.overriddenMethodClasses).containsOnly(
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.ClassToSubclass.class,
+				de.javagil.columbo.testbed.anonymous.TestClassWithAnonymousInnerClasses.InterfaceToSubclass.class);
+	}
+
+	private Class<?> anon(Class<?> outerClass, int no) throws ClassNotFoundException {
+		return Class.forName(outerClass.getCanonicalName()+"$"+no);
+	}
 }
 
 /** 
@@ -84,19 +124,32 @@ public class PackageBytecodeInspectorTest {
  */
 class MyReferenceVisitor extends ReferenceVisitorAdapter {
 
+	final Set<String> referencedFields = new HashSet<String>();
 	final Set<String> refererClasses = new HashSet<String>();
 	final Set<Class<?>> referencedClasses = new HashSet<Class<?>>();
+	final Set<Class<?>> overriddenMethodClasses = new HashSet<Class<?>>();
 
 	@Override
 	public void onClassReference(final Referrer referrer, final Class<?> referencedClass) {
 		refererClasses.add(referrer.getJavaElement().className);
 		referencedClasses.add(referencedClass);
 	}
+	
+	@Override
+	public void onMethodOverride(Referrer referrer, Method referencedMethod) {
+		refererClasses.add(referrer.getJavaElement().className);
+		overriddenMethodClasses.add(referencedMethod.getDeclaringClass());
+	}
 
 	@Override
 	public void onMethodCall(final Referrer referrer, final Method referencedMethod) {
 		refererClasses.add(referrer.getJavaElement().className);
 		referencedClasses.add(referencedMethod.getDeclaringClass());
+	}
+	
+	@Override
+	public void onFieldAccess(Referrer referrer, Field referencedField) {
+		referencedFields.add(referencedField.getName());
 	}
 }
 

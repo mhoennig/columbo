@@ -63,7 +63,7 @@ public class ClassVisitorTest {
 	private VisitorContext ctx = new VisitorContext();
 	
 	@Mock
-	private ReferenceVisitor refVisitorMock = new ReferenceVisitorAdapter();
+	private ReferenceVisitor refVisitorMock;
 	
 	private ClassVisitor testee;
 	

@@ -53,13 +53,11 @@ public class ClassVisitor extends ClassAdapter {
 
 	private final VisitorContext context;
 	private final ReferenceVisitor referenceVisitor;
-	private final MethodVisitor mv;
 
 	public ClassVisitor(final VisitorContext context, final ReferenceVisitor referenceVisitor) {
         super(new EmptyVisitor());
         this.context = context;
         this.referenceVisitor = referenceVisitor;
-		this.mv = new MethodVisitor(context, referenceVisitor);	
     }
     
     @Override
@@ -73,8 +71,23 @@ public class ClassVisitor extends ClassAdapter {
         scanAnnotations(referrer, enteredClass);
         scanSuperclassAndImplementedInterfaces(referrer, enteredClass);
     }
-
 	//CHECKSTYLE:ON ParameterNumber
+    
+    @Override
+    public void visitInnerClass(String name, String arg1, String arg2, int arg3) {
+    	String outerClassName = context.getCurrentClassName();
+    	
+    	context.leavingClass();
+        context.enteringClass(name);
+        
+        Referrer referrer = context.toReferrer();
+        Class<?> enteredClass = BytecodeUtil.taggedTypeNameToClass(name);
+        scanAnnotations(referrer, enteredClass);
+        scanSuperclassAndImplementedInterfaces(referrer, enteredClass);
+        
+        context.leavingClass();
+        context.enteringClass(outerClassName);        
+    }
     
     @Override
     public void visitSource(final String sourceToVisit, final String debug) {
@@ -103,14 +116,19 @@ public class ClassVisitor extends ClassAdapter {
 				}
 			}
 	        
-	        return mv;
+	        return new MethodVisitor(context, referenceVisitor);
     	} catch ( InspectionException exc ) {
     		referenceVisitor.onClassNotFound(referrer, exc);
     	}
     	
-    	return mv;
+    	return null;
     }
 
+	@Override
+    public void visitEnd() {
+    	context.leavingClass();
+    }
+    
     private void checkMethodOverride(Referrer referrer, Class<?> declaringClass, Method method) {
 		Method overriddenMethod = BytecodeUtil.findMethod(declaringClass, method.getName(), method.getParameterTypes());
 		if ( overriddenMethod != null && !Modifier.isPrivate(overriddenMethod.getModifiers()) ) {
@@ -118,11 +136,6 @@ public class ClassVisitor extends ClassAdapter {
 		}
 	}
 
-	@Override
-    public void visitEnd() {
-    	context.leavingClass();
-    }
-    
 	public final void inspect(final Set<String> classNamesToInspect) {
         for (String className: classNamesToInspect) {
      		getReferersOfClassName(className);
