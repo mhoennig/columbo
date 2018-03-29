@@ -39,6 +39,7 @@ public final class Util {
 	/**
 	 * Null safe comparison of instances, especially numerics like Integer.
 	 * 
+	 * @param <T> type of the objects to compare
 	 * @param object1 1st object to compare
 	 * @param object2 2ned object to compare
 	 * @return true if both null, same instance or both values equal

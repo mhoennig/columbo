@@ -36,9 +36,8 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 public @interface Internal {
 	/**
-	 * Specifies the package-hierarchy to which this element is internal.
-	 * Other than in Java sub-Packages are included.
-	 * Default (empty string) means package local to the package of the element which is annotated with @Internal. 
+	 * @return the package-hierarchy to which this element is internal,
+	 * 	empty string (default) means the package local to the package of the element which is annotated with @Internal. 
 	 */
 	String value() default "";
 }
