@@ -89,7 +89,6 @@ public class InspectionException extends RuntimeException {
 	 * incompatible to the version from compile time. 
 	 * 
 	 * @param referrer client code which refers to the element not found 
-	 * @param clazz the class on which a method was called
 	 * @param cause NoClassDefFoundError or ClassNotFoundException
 	 * @return an {@link InspectionException}
 	 */
